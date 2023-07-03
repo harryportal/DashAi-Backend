@@ -21,6 +21,18 @@ export interface ISignIn {
     password:string
 }
 
-export interface IAuthRepository{
-    getUser(id:string):Promise<User>
+export interface IAuthRepository {
+    getUser(userId: string): Promise<User | null>;
+    updateUser(userId: string, userData: Partial<updateUser>): Promise<User>;
+    resetPassword(userId: string, newPassword: string): Promise<void>;
+    createUser(email: string, password: string): Promise<void>;
+    verifyUser(userId: string): Promise<void>;
+    createRefreshToken(refreshToken: string, expiresAt: Date, userId: string): Promise<void>;
+    getRefreshToken(refreshToken: string): Promise<string>;
+    deleteRefreshToken(refreshToken: string): Promise<void>;
+  }
+
+export const AuthTypes = {
+    IAuthRepository: Symbol("IAuthRepository")
 }
+export type updateUser = Pick<User, "name" | "age" | "gender" | "location" | "activeStatus">;
