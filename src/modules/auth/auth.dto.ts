@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { Request } from "express";
 
 
@@ -18,4 +19,8 @@ export interface jwtPayload{
 export interface ISignIn {
     email: string
     password:string
+}
+
+export interface IAuthRepository{
+    getUser(id:string):Promise<User>
 }

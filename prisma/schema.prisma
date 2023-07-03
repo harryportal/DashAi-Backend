@@ -22,4 +22,15 @@ model User {
   googleSignOn Boolean @default(false)
   verified Boolean @default(true)
   calendarStatus Boolean @default(false)
+  refreshTokens    RefreshToken[]
+}
+
+
+model RefreshToken {
+  id            String      @id @default(uuid())
+  distributorId String
+  token         String      @unique
+  createdAt     DateTime    @default(now())
+  expiresAt     DateTime
+  user          User @relation(fields: [distributorId], references: [id])
 }
