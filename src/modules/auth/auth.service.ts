@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import { BadRequestError, ConflictError, ForbiddenError, UnAuthorizedError } from "../../common/error";
 import removePassword from "../../utils/db/excludeKey";
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
-import { AuthTypes, IAuthRepository, UserProfile, jwtPayload, updateUser } from "./auth.dto";
+import { AuthTypes, IAuthRepository, IAuthService, UserProfile, jwtPayload, updateUser } from "./auth.dto";
 import { injectable, inject } from "inversify";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
@@ -10,7 +10,7 @@ import { IEmailQueue, MailTypes } from "../mail/mail.interface";
 
 
 @injectable()
-export class AuthService{
+export class AuthService implements IAuthService{
     private authRepository: IAuthRepository;
     private mailService: IEmailQueue;
     constructor(@inject(AuthTypes.IAuthRepository)authRepository:IAuthRepository,

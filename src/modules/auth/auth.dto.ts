@@ -33,10 +33,23 @@ export interface IAuthRepository {
     createRefreshToken(refreshToken: string, expiresAt: Date, userId: string): Promise<void>;
     getRefreshToken(refreshToken: string): Promise<RefreshToken| null>;
     deleteRefreshToken(refreshToken: string): Promise<void>;
-  }
+}
+
+export interface IAuthService {
+  signUp(email: string, password: string): Promise<void>;
+  verifyEmail(verificationToken: string): Promise<void>;
+  signIn(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }>;
+  addProfile(profile: updateUser, id: string): Promise<UserProfile>;
+  getVerificationMail(email: string): Promise<void>;
+  resetPassword(token: string, password: string, confirmPassword: string): Promise<void>;
+  getAccessToken(refreshToken: string): Promise<string>;
+  deleteRefreshToken(refreshToken: string): Promise<void>;
+  forgotPassword(email: string): Promise<void>;
+}
 
 export const AuthTypes = {
-    IAuthRepository: Symbol("IAuthRepository")
+    IAuthRepository: Symbol("IAuthRepository"),
+    IAuthService: Symbol("IAuthService")
 }
 
 export type UserProfile = Omit<User, 'password'>;
