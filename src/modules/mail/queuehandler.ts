@@ -24,12 +24,11 @@ export default class EmailQueue {
     private emailService: IMailService;
     constructor(@inject(MailTypes.IMailService)mailSerivce:IMailService){
         this.emailService =  mailSerivce;
-        this.queue =  new Queue('Email Queue', queueOptions, REDIS_URL )
+        this.queue =  new Queue('Email Queue', queueOptions, REDIS_URL);
         this.worker = new Worker("Email Queue", async(emailJob:Job)=>{
             logger.info("Processing Email Notification Task")
             await this.emailService.sendMail(emailJob.data);
         });
-        this.worker.run();
     }
 
     public async addEmailToQueue(emailData:IEmailData):Promise<void>{
