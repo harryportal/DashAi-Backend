@@ -23,6 +23,7 @@ model User {
   verified Boolean @default(true)
   activeStatus Boolean @default(false)
   calendarStatus Boolean @default(false)
+  verificationToken String?
   refreshTokens    RefreshToken[]
 }
 

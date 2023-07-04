@@ -27,7 +27,9 @@ export interface IAuthRepository {
     addUserProfile(userId: string, userData: Partial<updateUser>): Promise<User>;
     resetPassword(userId: string, newPassword: string): Promise<void>;
     createUser(email: string, password: string): Promise<User>;
+    addVerificationToken(id:string, token:string):Promise<void>
     verifyUser(userId: string): Promise<void>;
+    deleteVerificationToken(email:string):Promise<void>;
     createRefreshToken(refreshToken: string, expiresAt: Date, userId: string): Promise<void>;
     getRefreshToken(refreshToken: string): Promise<RefreshToken| null>;
     deleteRefreshToken(refreshToken: string): Promise<void>;

@@ -22,31 +22,46 @@ export class AuthService{
     /**
      * verifies the token and sends the user payload if valid
      * @param token - jwt token
+     * @returns - the verified user payload
      */
     private verifyJwtandThrow(token:string):jwtPayload{
         const verifiedPayload = verifyJWT(token);
-        if(!verifiedPayload) { throw new UnAuthorizedError("Invalid Credentials Provided!") }
+        if(!verifiedPayload) { throw new UnAuthorizedError("Invalid or Expired Token!") }
         return verifiedPayload
     }
 
     /**
-     * Creates a jwt token(exp time of 24hrs) with the user email in the payload.
-     * Pass the token to the email template and call the email service to send the mail
+     * Creates the verification url from the client's reset url and reset password token
+     * Create the mail template with the user name and reset link
+     * Add the email task to the background worker
      * @param email 
-     * @param id - user id
+     * @param verificationToken - verify email jwt token
      */
-    private async sendVerificationmail(email:string, id:string){
-        const verificationToken = createVerificationToken(email, id);
+    private async sendVerificationmail(email:string,verificationToken:string){
         const verifyEmailUrl = `${process.env.FRONTENDURL}/${verificationToken}`;
         const mailtemplate = completeprofileTemplate(verifyEmailUrl);
         await this.mailService.addEmailToQueue({to:email, subject: "Verify Your Email Address", html:mailtemplate})
     }
     
-    
+    /**
+     * Creates the reset password url from the client's reset url and reset password token
+     * Create the mail template with the user name and reset link
+     * Add the email task to the background worker
+     * @param token - resetpassword jwt token
+     * @param email 
+     * @param name 
+     */
+    private async sendResetPasswormail(token:string, email:string, name:string){
+        const addPasswordUrl = `${process.env.FRONTENDRESETURL}/${token}`;
+        const mailtemplate = createresetTemplate(name, addPasswordUrl);
+        await this.mailService.addEmailToQueue({to:email, subject: "Reset Your Password", html:mailtemplate})
+    }
+
     /**
      * Verifies that a user with the email provided doesn't already exist.
      * Hash the password and create the user with the email and hashed password.
-     * Sends a verification mail to the email address.
+     * Creates a jwt token with the user email in the payload, attach it to the user and call the
+     * send verification mail function
      * @param email 
      * @param password 
      */
@@ -55,8 +70,26 @@ export class AuthService{
         if(user){ throw new ConflictError("Email Already Exists. Please use another email Adress") }
         const hashedpassword = await hashPassword(password);
         user = await this.authRepository.createUser(email, hashedpassword);
-        await this.sendVerificationmail(email, user.id);
+        const verificationToken = createVerificationToken(email, user.id);
+        await this.authRepository.addVerificationToken(email, verificationToken);
+        await this.sendVerificationmail(email,verificationToken);
+    }
 
+    /**
+     * Verifies that the token is still valid.
+     * Fetch the user to check that the token is currently associated the with user 
+     * ( it won't if the user has requested for a new verification link after the current one was requested ). 
+     * If valid, delete the verification token from the user and mark the user verified
+     * @param verificationToken - jwt verification token
+     */
+    public async verifyEmail(verificationToken:string){
+        const jwtPayload = this.verifyJwtandThrow(verificationToken);
+        const user = await this.authRepository.getUserwithId(jwtPayload.id) as User;
+        if(user.verificationToken != verificationToken){
+            throw new BadRequestError("Invalid or Expired Token!")
+        }
+        await this.authRepository.deleteVerificationToken(jwtPayload.email);
+        await this.authRepository.verifyUser(jwtPayload.id);
     }
 
     /**
@@ -97,6 +130,17 @@ export class AuthService{
         if(!user.verified) { throw new ForbiddenError("Please verify your email address to Continue")}
         let newProfile = await this.authRepository.addUserProfile(id, profile);
         return removePassword(newProfile);
+    }
+
+    /**
+     * Deletes the current verification token associated with the user if any and
+     * creates a new token which is passed to send verification email function.
+     * @param email 
+     */
+    public async getVerificationMail(email:string){
+        await this.authRepository.deleteVerificationToken(email);
+
+        
     }
 
     /**
@@ -144,24 +188,17 @@ export class AuthService{
     /**
      * Verifies that a user with the email address exists.
      * If true, verifies that the user email has been verified.
-     * Sends verification mail to the user's email.
+     * Delete the user's current verification token, create a new verification token and 
+     * call the send reset mail method
      * @param email 
      */
     public async forgotPassword(email:string){
         const user = await this.authRepository.getUserwithEmail(email.toLowerCase()) as User;
         if(!user) { throw new BadRequestError("No Email with associated Account!") }
-        if(!user.verified) {throw new BadRequestError("Please verify your email first!")}
         const userToken = createResetToken(user.email, user.name!)
 
         //the user might have no name since they should be able to reset password without onbaording
         let name:string = user.name ??  "";  
-
-        const addPasswordUrl = `${process.env.FRONTENDRESETURL}/${userToken}`;
-        const mailtemplate = createresetTemplate(name, addPasswordUrl);
-        await this.mailService.addEmailToQueue({to:email, subject: "Reset Your Password", html:mailtemplate})
-}
-    
-
-
-
+        await this.sendResetPasswormail(userToken, email, name);    
+    }
 }

@@ -35,6 +35,15 @@ export default class AuthRepository implements IAuthRepository{
         return updatedUser;
     };
 
+    public async addVerificationToken(id:string, token:string):Promise<void>{
+        await this.user.update({
+            where: { id },
+            data:{
+                verificationToken: token
+            }
+        });
+    }
+
 
     public async resetPassword(userId:string, newPassword:string):Promise<void>{
         await this.user.update({
@@ -45,6 +54,14 @@ export default class AuthRepository implements IAuthRepository{
         });
     };
 
+    public async deleteVerificationToken(email:string):Promise<void>{
+        await this.user.update({
+            where: { email },
+            data:{
+                verificationToken: null
+            }
+        });
+    }
 
     public async createUser(email:string, password:string):Promise<User>{
         const user = await this.user.create({
