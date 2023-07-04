@@ -1,5 +1,5 @@
 import { Queue, QueueOptions, RedisConnection, Worker, Job } from "bullmq";
-import { MailTypes, IMailService, IEmailData } from "./mail.interface";
+import { MailTypes, IMailService, IEmailData, IEmailQueue } from "./mail.interface";
 import logger from "../../utils/logging/winston";
 import { inject, injectable } from "inversify";
 
@@ -18,7 +18,7 @@ const queueOptions = {
 const REDIS_URL = process.env.REDIS_URL as unknown as typeof RedisConnection;
 
 @injectable()
-export default class EmailQueue {
+export default class EmailQueue implements IEmailQueue{
     private queue: Queue;
     private worker: Worker;
     private emailService: IMailService;

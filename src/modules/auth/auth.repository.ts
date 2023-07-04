@@ -27,10 +27,10 @@ export default class AuthRepository implements IAuthRepository{
     }
 
     public async addUserProfile(userId:string, userData:updateUser):Promise<User>{
-        const {name, age, gender, location, activeStatus } = userData;
+        const {name, age, gender, location } = userData;
         const updatedUser = await this.user.update({
             where:{ id:userId},
-            data: {name, age, gender, location, activeStatus}
+            data: {name, age, gender, location, activeStatus:true}
         });
         return updatedUser;
     };
@@ -46,12 +46,13 @@ export default class AuthRepository implements IAuthRepository{
     };
 
 
-    public async createUser(email:string, password:string):Promise<void>{
-        await this.user.create({
+    public async createUser(email:string, password:string):Promise<User>{
+        const user = await this.user.create({
             data:{
                 email, password
             }
         });
+        return user;
     };
 
     

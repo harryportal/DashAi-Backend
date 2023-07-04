@@ -26,7 +26,7 @@ export interface IAuthRepository {
     getUserwithEmail(email: string): Promise<User | null>;
     addUserProfile(userId: string, userData: Partial<updateUser>): Promise<User>;
     resetPassword(userId: string, newPassword: string): Promise<void>;
-    createUser(email: string, password: string): Promise<void>;
+    createUser(email: string, password: string): Promise<User>;
     verifyUser(userId: string): Promise<void>;
     createRefreshToken(refreshToken: string, expiresAt: Date, userId: string): Promise<void>;
     getRefreshToken(refreshToken: string): Promise<RefreshToken| null>;
@@ -38,4 +38,4 @@ export const AuthTypes = {
 }
 
 export type UserProfile = Omit<User, 'password'>;
-export type updateUser = Pick<User, "name" | "age" | "gender" | "location" | "activeStatus">;
+export type updateUser = Pick<User, "name" | "age" | "gender" | "location" >;

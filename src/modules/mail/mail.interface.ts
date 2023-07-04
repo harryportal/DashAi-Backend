@@ -10,6 +10,12 @@ export interface IMailService {
     sendMail(options: IEmailData):Promise<any>;
 }
 
-export const MailTypes = {
-    IMailService:Symbol("IMailService")
+export interface IEmailQueue {
+    addEmailToQueue(emailData:IEmailData):Promise<void>
 }
+
+export const MailTypes = {
+    IMailService:Symbol("IMailService"),
+    IEmailQueue:Symbol("IEmailQueue")
+}
+

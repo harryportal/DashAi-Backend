@@ -35,6 +35,11 @@ export const createRefreshToken = (user:User) =>{
   return token;
 }
 
+export const createResetToken = (email:string, id:string)=>{
+  const token = jwt.sign({ email, id, type: "reset"}, secret );
+  return token;
+}
+
 export const createVerificationToken = (email:string, id:string)=>{
   const token = jwt.sign({ id, email, type: "verify"}, secret );
   return token;

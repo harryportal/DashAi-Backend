@@ -1,17 +1,22 @@
 import { User } from "@prisma/client";
 import { BadRequestError, ConflictError, ForbiddenError, UnAuthorizedError } from "../../common/error";
 import removePassword from "../../utils/db/excludeKey";
-import { comparePassword, createAcessToken, createRefreshToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
+import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
 import { AuthTypes, IAuthRepository, UserProfile, jwtPayload, updateUser } from "./auth.dto";
 import { injectable, inject } from "inversify";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
+import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
+import { IEmailQueue, MailTypes } from "../mail/mail.interface";
 
 
 @injectable()
 export class AuthService{
     private authRepository: IAuthRepository;
-    constructor(@inject(AuthTypes.IAuthRepository)authRepository:IAuthRepository){
+    private mailService: IEmailQueue;
+    constructor(@inject(AuthTypes.IAuthRepository)authRepository:IAuthRepository,
+    @inject(MailTypes.IEmailQueue)mailService:IEmailQueue){
         this.authRepository = authRepository;
+        this.mailService = mailService;
     }
 
     /**
@@ -28,9 +33,13 @@ export class AuthService{
      * Creates a jwt token(exp time of 24hrs) with the user email in the payload.
      * Pass the token to the email template and call the email service to send the mail
      * @param email 
+     * @param id - user id
      */
-    private async sendVerificationmail(email:string){
-
+    private async sendVerificationmail(email:string, id:string){
+        const verificationToken = createVerificationToken(email, id);
+        const verifyEmailUrl = `${process.env.FRONTENDURL}/${verificationToken}`;
+        const mailtemplate = completeprofileTemplate(verifyEmailUrl);
+        await this.mailService.addEmailToQueue({to:email, subject: "Verify Your Email Address", html:mailtemplate})
     }
     
     
@@ -45,8 +54,8 @@ export class AuthService{
         let user = await this.authRepository.getUserwithEmail(email);
         if(user){ throw new ConflictError("Email Already Exists. Please use another email Adress") }
         const hashedpassword = await hashPassword(password);
-        await this.authRepository.createUser(email, hashedpassword);
-        await this.sendVerificationmail(email);
+        user = await this.authRepository.createUser(email, hashedpassword);
+        await this.sendVerificationmail(email, user.id);
 
     }
 
@@ -142,11 +151,14 @@ export class AuthService{
         const user = await this.authRepository.getUserwithEmail(email.toLowerCase()) as User;
         if(!user) { throw new BadRequestError("No Email with associated Account!") }
         if(!user.verified) {throw new BadRequestError("Please verify your email first!")}
-        const userToken = createAcessToken(user);
+        const userToken = createResetToken(user.email, user.name!)
+
+        //the user might have no name since they should be able to reset password without onbaording
+        let name:string = user.name ??  "";  
 
         const addPasswordUrl = `${process.env.FRONTENDRESETURL}/${userToken}`;
-        const mailtemplate = createresetTemplate(user.name!, addPasswordUrl);
-        //await this.mailService.sendMail({to:email, subject: "Reset Your Password", html:mailtemplate})
+        const mailtemplate = createresetTemplate(name, addPasswordUrl);
+        await this.mailService.addEmailToQueue({to:email, subject: "Reset Your Password", html:mailtemplate})
 }
     
 
