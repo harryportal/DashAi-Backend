@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { RefreshToken, User } from "@prisma/client";
 import { Request } from "express";
 
 
@@ -22,17 +22,20 @@ export interface ISignIn {
 }
 
 export interface IAuthRepository {
-    getUser(userId: string): Promise<User | null>;
-    updateUser(userId: string, userData: Partial<updateUser>): Promise<User>;
+    getUserwithId(userId: string): Promise<User | null>;
+    getUserwithEmail(email: string): Promise<User | null>;
+    addUserProfile(userId: string, userData: Partial<updateUser>): Promise<User>;
     resetPassword(userId: string, newPassword: string): Promise<void>;
     createUser(email: string, password: string): Promise<void>;
     verifyUser(userId: string): Promise<void>;
     createRefreshToken(refreshToken: string, expiresAt: Date, userId: string): Promise<void>;
-    getRefreshToken(refreshToken: string): Promise<string>;
+    getRefreshToken(refreshToken: string): Promise<RefreshToken| null>;
     deleteRefreshToken(refreshToken: string): Promise<void>;
   }
 
 export const AuthTypes = {
     IAuthRepository: Symbol("IAuthRepository")
 }
+
+export type UserProfile = Omit<User, 'password'>;
 export type updateUser = Pick<User, "name" | "age" | "gender" | "location" | "activeStatus">;

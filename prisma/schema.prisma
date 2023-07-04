@@ -17,7 +17,7 @@ model User {
   age Int?
   gender String?
   location String?
-  email String
+  email String @unique
   password String
   googleSignOn Boolean @default(false)
   verified Boolean @default(true)
