@@ -37,7 +37,7 @@ export class AuthService{
      * @param email 
      * @param verificationToken - verify email jwt token
      */
-    private async sendVerificationmail(email:string,verificationToken:string){
+    private async sendVerificationmail(email:string,verificationToken:string):Promise<void>{
         const verifyEmailUrl = `${process.env.FRONTENDURL}/${verificationToken}`;
         const mailtemplate = completeprofileTemplate(verifyEmailUrl);
         await this.mailService.addEmailToQueue({to:email, subject: "Verify Your Email Address", html:mailtemplate})
@@ -51,7 +51,7 @@ export class AuthService{
      * @param email 
      * @param name 
      */
-    private async sendResetPasswormail(token:string, email:string, name:string){
+    private async sendResetPasswormail(token:string, email:string, name:string):Promise<void>{
         const addPasswordUrl = `${process.env.FRONTENDRESETURL}/${token}`;
         const mailtemplate = createresetTemplate(name, addPasswordUrl);
         await this.mailService.addEmailToQueue({to:email, subject: "Reset Your Password", html:mailtemplate})
@@ -65,7 +65,7 @@ export class AuthService{
      * @param email 
      * @param password 
      */
-    public async signUp(email:string, password:string){
+    public async signUp(email:string, password:string):Promise<void>{
         let user = await this.authRepository.getUserwithEmail(email);
         if(user){ throw new ConflictError("Email Already Exists. Please use another email Adress") }
         const hashedpassword = await hashPassword(password);
@@ -82,7 +82,7 @@ export class AuthService{
      * If valid, delete the verification token from the user and mark the user verified
      * @param verificationToken - jwt verification token
      */
-    public async verifyEmail(verificationToken:string){
+    public async verifyEmail(verificationToken:string):Promise<void>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
         const user = await this.authRepository.getUserwithId(jwtPayload.id) as User;
         if(user.verificationToken != verificationToken){
@@ -100,7 +100,7 @@ export class AuthService{
      * @param password 
      * @returns access and refresh tokens
      */
-    public async signIn(email:string, password:string){
+    public async signIn(email:string, password:string):Promise<{accessToken:string, refreshToken:string}>{
         const user = await this.authRepository.getUserwithEmail(email.toLowerCase());
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
@@ -166,7 +166,7 @@ export class AuthService{
      * @param refreshToken 
      * @returns a new access Token
      */
-    public async getAccessToken(refreshToken:string){
+    public async getAccessToken(refreshToken:string):Promise<string>{
         const verifiedPayload = this.verifyJwtandThrow(refreshToken);
         const token = await this.authRepository.getRefreshToken(refreshToken);
         if (!token || token.expiresAt < new Date) { throw new UnAuthorizedError("Invalid Token Provided") }
@@ -180,7 +180,7 @@ export class AuthService{
      * Invalidates a refresh token by deleting it from the database
      * @param refreshToken 
      */
-    public deleteRefreshToken = async(refreshToken:string)=>{
+    public async deleteRefreshToken(refreshToken:string){
         verifyJWT(refreshToken);
         await this.authRepository.deleteRefreshToken(refreshToken);
     }
