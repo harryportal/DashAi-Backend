@@ -36,7 +36,7 @@ export class AuthController {
     }
 
     public async logout(req:AuthRequest, res:Response){
-        const {refreshToken} = req.body;
+        const refreshToken = req.query.token as string;
         await this.authService.deleteRefreshToken(refreshToken);
         return res.status(204);
     }
