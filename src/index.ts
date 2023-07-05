@@ -1,0 +1,29 @@
+import "reflect-metadata";
+import app from './app';
+import * as dotenv from 'dotenv';
+import logger from './utils/logging/winston';
+import {Prisma }from './utils/db/prisma';
+import { Application } from 'express';
+
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+ 
+class Server {
+  private port = process.env.PORT || 8000;
+  private app;
+  private prisma:Prisma;
+  constructor(app: Application, prisma:Prisma) {
+      this.app = app;
+      this.prisma = prisma;
+  }
+
+  start() {
+      this.prisma.connectDB();
+      this.app.listen(this.port, () => {
+        logger.info(`Listening on url http://localhost:${this.port}`);
+      })
+  }
+}
+
+const server =  new Server(app, new Prisma());
+server.start()
