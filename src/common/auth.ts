@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest }from '../modules/auth/auth.dto';
 import { UnAuthorizedError } from './error';
 import { verifyJWT } from '../utils/jwtAuth/jwt';
+import { prisma } from '../utils/db/prisma';
 
 
 export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -14,14 +15,19 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction) => 
     const [, token] = bearer.split(' ');
 
     if (!token) {
-      throw new UnAuthorizedError("No Credentials provided")
+      throw new UnAuthorizedError("No Token provided")
     }
 
     const payload = verifyJWT(token)
     if(!payload){
-      throw new UnAuthorizedError("Invalid Credentials provided");
+      throw new UnAuthorizedError("Invalid or Expired Token");
     }
 
+    // check the database if user with Id exists
+    const user = prisma.user.findUnique({where: {id:payload.id}});
+    if(!user) {
+      throw new UnAuthorizedError("Invalid or Deleted User")
+    }
 
     // This prevents the client from using the refresh token for authentication
     req.user = payload;
