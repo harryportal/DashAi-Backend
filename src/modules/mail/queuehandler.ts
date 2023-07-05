@@ -1,21 +1,20 @@
-import { Queue, QueueOptions, Worker, Job } from "bullmq";
+import { Queue, QueueOptions, Worker, Job, RedisConnection } from "bullmq";
 import { MailTypes, IMailService, IEmailData, IEmailQueue } from "./mail.interface";
 import logger from "../../utils/logging/winston";
 import { inject, injectable } from "inversify";
 
-
-const redisConnection = {
-    host: 'localhost',
-    port: 6379,
-}
-
+const connectionString = process.env.REDIS_URL as string;
 
 const queueOptions = { 
     limiter:{
         max:100, // maximum number of tasks the queue can take
         duration:10000  // miliseconds to wait after reaching max limit
     },
-    connection:redisConnection,
+    connection:{
+        host: connectionString.split(":")[2].split("@")[1],
+        port: parseInt(connectionString.split(":")[3]),
+        password:connectionString.split(":")[2].split("@")[0]
+    },
     prefix: 'EMAIL-TASK',
     backoff: {
         type: 'exponential', // Exponential backoff strategy
