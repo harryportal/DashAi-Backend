@@ -21,7 +21,7 @@ if(!secret) { throw new InternalServerError("JWT SECRET HAS NO VALUE!")}
 export const createAcessToken = (user: User) => {
 
   const token = jwt.sign({ id: user.id, email: user.email,  name:user.name, activeStatus:user.activeStatus,
-  type:"access"}, secret, { expiresIn: process.env.JWT_EXPIRATION_TIME });
+  type:"access"}, secret, { expiresIn: process.env.ACESSTOKEN_EXPIRESAT });
 
   return token;
 };
@@ -29,19 +29,19 @@ export const createAcessToken = (user: User) => {
 export const createRefreshToken = (user:User) =>{
 
   const token = jwt.sign({ id:user.id, email:user.email,type: "refresh"}, secret, {
-    expiresIn: process.env.REFRESHTOKEN_EXPIRATION_TIME,
+    expiresIn: process.env.REFRESHTOKEN_EXPIRESAT
   });
   
   return token;
 }
 
 export const createResetToken = (email:string, id:string)=>{
-  const token = jwt.sign({ email, id, type: "reset"}, secret );
+  const token = jwt.sign({ email, id, type: "reset"}, secret, {expiresIn: process.env.RESETTOKEN_EXPIRESAT} );
   return token;
 }
 
 export const createVerificationToken = (email:string, id:string)=>{
-  const token = jwt.sign({ id, email, type: "verify"}, secret );
+  const token = jwt.sign({ id, email, type: "verify"}, secret, {expiresIn: process.env.VERIFICATION_EXPIRESAT} );
   return token;
 }
 

@@ -10,10 +10,11 @@ const authRouter = Router();
 
 authRouter.post("/signup", RequestValidator.validate(SignUp), authController.signUp)
 authRouter.post("/signin", RequestValidator.validate(SignIn), authController.signIn)
-authRouter.post("/profile", RequestValidator.validate(AddProfile), authController.addProfile)
+authRouter.post("/profile", protect, RequestValidator.validate(AddProfile), authController.addProfile)
 authRouter.post("/logout", authController.logout )
-authRouter.post("/forgotpassoword", RequestValidator.validate(ForgotPassword), authController.forgotPassword)
-authRouter.post("/resetpassword", RequestValidator.validate(ResetPassword), authController.resetPassword)
+authRouter.post("/forgot-password", RequestValidator.validate(ForgotPassword), authController.forgotPassword)
+authRouter.post("/reset-password", RequestValidator.validate(ResetPassword), authController.resetPassword)
 authRouter.get("/verification", protect, authController.getVerficiationMail)
+authRouter.post("/verification", authController.verifyEmail);
 
 export default authRouter;

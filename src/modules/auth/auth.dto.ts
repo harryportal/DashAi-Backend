@@ -38,7 +38,7 @@ export interface IAuthRepository {
 export interface IAuthService {
   signUp(email: string, password: string): Promise<void>;
   verifyEmail(verificationToken: string): Promise<void>;
-  signIn(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }>;
+  signIn(email: string, password: string): Promise<ISignInResponse>;
   addProfile(profile: updateUser, id: string): Promise<UserProfile>;
   getVerificationMail(email: string): Promise<void>;
   resetPassword(token: string, password: string, confirmPassword: string): Promise<void>;
@@ -52,5 +52,12 @@ export const AuthTypes = {
     IAuthService: Symbol("IAuthService")
 }
 
-export type UserProfile = Omit<User, 'password'>;
+export interface ISignInResponse{
+    refreshToken:string,
+    accessToken:string,
+    onboardingStatus:boolean,
+    verificationStatus:boolean,
+}
+
+export type UserProfile = Omit<User, 'password' | "verificationToken">;
 export type updateUser = Pick<User, "name" | "age" | "gender" | "location" >;

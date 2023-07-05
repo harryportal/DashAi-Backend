@@ -1,8 +1,7 @@
 import { User } from "@prisma/client";
 import { BadRequestError, ConflictError, ForbiddenError, UnAuthorizedError } from "../../common/error";
-import removePassword from "../../utils/db/excludeKey";
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
-import { AuthTypes, IAuthRepository, IAuthService, UserProfile, jwtPayload, updateUser } from "./auth.dto";
+import { AuthTypes, IAuthRepository, IAuthService, ISignInResponse, UserProfile, jwtPayload, updateUser } from "./auth.dto";
 import { injectable, inject } from "inversify";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
@@ -51,7 +50,7 @@ export class AuthService implements IAuthService{
      * @param email 
      * @param name 
      */
-    private async sendResetPasswormail(token:string, email:string, name:string):Promise<void>{
+    private async sendResetPasswordmail(token:string, email:string, name:string):Promise<void>{
         const addPasswordUrl = `${process.env.FRONTENDRESETURL}/${token}`;
         const mailtemplate = createresetTemplate(name, addPasswordUrl);
         await this.mailService.addEmailToQueue({to:email, subject: "Reset Your Password", html:mailtemplate})
@@ -85,8 +84,8 @@ export class AuthService implements IAuthService{
     public async verifyEmail(verificationToken:string):Promise<void>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
         const user = await this.authRepository.getUserwithId(jwtPayload.id) as User;
-        if(user.verificationToken != verificationToken){
-            throw new BadRequestError("Invalid or Expired Token!")
+        if(!user || (user.verificationToken != verificationToken)){
+            throw new UnAuthorizedError("Invalid or Expired Token!")
         }
         await this.authRepository.deleteVerificationToken(jwtPayload.email);
         await this.authRepository.verifyUser(jwtPayload.id);
@@ -95,12 +94,12 @@ export class AuthService implements IAuthService{
     /**
      * Verifies that a user with email exists.
      * Compares the passowrd with user's hashed password.
-     * Create and returns access and refresh tokens.
+     * Create and returns access, refresh tokens and the user onboarding status
      * @param email 
      * @param password 
      * @returns access and refresh tokens
      */
-    public async signIn(email:string, password:string):Promise<{accessToken:string, refreshToken:string}>{
+    public async signIn(email:string, password:string):Promise<ISignInResponse>{
         const user = await this.authRepository.getUserwithEmail(email.toLowerCase());
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
@@ -109,11 +108,13 @@ export class AuthService implements IAuthService{
 
         const accessToken =  createAcessToken(user);
         const refreshToken = createRefreshToken(user);
-
+        const onboardingStatus = user.activeStatus;
+        const verificationStatus = user.verified;
         const refreshTokenTime = process.env.REFRESHTOKEN_EXPIREAT as unknown as number; // no of days
         const refreshTokenExpiresAt = new Date(Date.now() + refreshTokenTime * 24 * 60 * 60 * 1000); 
-        this.authRepository.createRefreshToken(refreshToken, refreshTokenExpiresAt, user.id)
-        return {accessToken, refreshToken};
+
+        await this.authRepository.createRefreshToken(refreshToken, refreshTokenExpiresAt, user.id)
+        return {accessToken, refreshToken, onboardingStatus, verificationStatus};
     }
 
     /**
@@ -128,35 +129,46 @@ export class AuthService implements IAuthService{
         const user = await this.authRepository.getUserwithId(id);
         if(!user){ throw new UnAuthorizedError("No user with Provided with Credentials") };
         if(!user.verified) { throw new ForbiddenError("Please verify your email address to Continue")}
-        let newProfile = await this.authRepository.addUserProfile(id, profile);
-        return removePassword(newProfile);
+        let addedProfile = await this.authRepository.addUserProfile(id, profile);
+        const {password, verificationToken, ...newProfile} = addedProfile;
+        return newProfile;
     }
 
     /**
-     * Deletes the current verification token associated with the user if any and
-     * creates a new token which is passed to send verification email function.
+     * Checks if the user is not already verified.
+     * If true, deletes the current verification token associated with the user 
+     * if any and creates a new token. Attach the token to the user and call the send 
+     * verification email function.
      * @param email 
      */
     public async getVerificationMail(email:string){
-        await this.authRepository.deleteVerificationToken(email);
-
-        
+        const user = await this.authRepository.getUserwithEmail(email) as User;
+        if(!user.verified){
+            await this.authRepository.deleteVerificationToken(email);
+            const verificationToken = createVerificationToken(email ,user.id);
+            await this.authRepository.addVerificationToken(user.id, verificationToken);
+            this.sendVerificationmail(email, verificationToken);
+        }
+    
     }
 
     /**
-     * Verifies the jwt token.
-     * Compares the passwords and reset password if matched.
+     * Compares the passwords and proceed if matched.
+     * Verifies that the jwt token is valid and is a reset token 
      * @param token - token passed to the frontend url from the verification email.
      * @param password 
      * @param confirmPassword 
      */
     public async resetPassword(token:string, password:string, confirmPassword:string):Promise<void>{
-        let user = this.verifyJwtandThrow(token);
         if (password !== confirmPassword){
             throw new BadRequestError("Passwords do not match!")
         }
+        let jwtPayload = this.verifyJwtandThrow(token);
+        if(jwtPayload.type != "reset"){  // This way, verification and access token can't be used to replace this
+            throw new UnAuthorizedError("Invalid or expired Token");
+        }
         const hashedPassword = await hashPassword(password);
-        await this.authRepository.resetPassword(user.id, hashedPassword);
+        await this.authRepository.resetPassword(jwtPayload.id, hashedPassword);
     }
 
     /**
@@ -177,12 +189,19 @@ export class AuthService implements IAuthService{
     }
 
     /**
-     * Invalidates a refresh token by deleting it from the database
+     * Verifies the jwt refresh token, checks that is a refresh token and
+     * invalidates the refresh token by deleting it from the database
      * @param refreshToken 
      */
     public async deleteRefreshToken(refreshToken:string){
-        verifyJWT(refreshToken);
-        await this.authRepository.deleteRefreshToken(refreshToken);
+        this.verifyJwtandThrow(refreshToken) as jwtPayload;
+        const token = await this.authRepository.getRefreshToken(refreshToken); 
+        if(token){
+            await this.authRepository.deleteRefreshToken(refreshToken);
+        }else{
+            throw new UnAuthorizedError("Invalid or Expired Token");
+        }
+        
     }
 
     /**
@@ -194,11 +213,11 @@ export class AuthService implements IAuthService{
      */
     public async forgotPassword(email:string){
         const user = await this.authRepository.getUserwithEmail(email.toLowerCase()) as User;
-        if(!user) { throw new BadRequestError("No Email with associated Account!") }
-        const userToken = createResetToken(user.email, user.name!)
+        if(!user) { throw new BadRequestError("No User with Email Address!") }
+        const userToken = createResetToken(user.email, user.id)
 
         //the user might have no name since they should be able to reset password without onbaording
         let name:string = user.name ??  "";  
-        await this.sendResetPasswormail(userToken, email, name);    
+        await this.sendResetPasswordmail(userToken, email, name);    
     }
 }

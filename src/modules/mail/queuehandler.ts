@@ -46,8 +46,6 @@ export default class EmailQueue implements IEmailQueue{
         const respone = await this.emailService.sendMail(emailJob.data)
         if(respone){
             emailJob.moveToCompleted(true, "done")
-        }else{
-            emailJob.moveToFailed(new Error("Processing task Failed"), "failed")
         }
     }
     public async addEmailToQueue(emailData:IEmailData):Promise<void>{
@@ -55,7 +53,7 @@ export default class EmailQueue implements IEmailQueue{
             await this.queue.add("email_notification", emailData);
             logger.info(`Email to ${emailData.to} has been added to the Queue`)
           } catch (error) {
-            logger.error(`Email to ${emailData.to} has been added to the Queue`)
+            logger.error(`Email to ${emailData.to} failed to be added to the Queue`)
           }
        
         
