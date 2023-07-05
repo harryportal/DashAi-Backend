@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import { ErrorHandler } from './common/error';
 import { Application } from 'express';
-//import authRouter from "./modules/auth/auth.router";
+import authRouter from "./modules/auth/auth.router";
 import "express-async-errors";
 
 const app: Application = express();
@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-//app.use("/auth", authRouter);
+app.use("/auth", authRouter);
 
 
 

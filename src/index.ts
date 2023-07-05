@@ -1,4 +1,3 @@
-console.log("I am here");
 import "reflect-metadata";
 import app from './app';
 import * as dotenv from 'dotenv';
