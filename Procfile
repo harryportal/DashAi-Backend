@@ -1,1 +1,3 @@
-web: node dist/index.js
+web: yarn start
+
+release: npx prisma migrate 
