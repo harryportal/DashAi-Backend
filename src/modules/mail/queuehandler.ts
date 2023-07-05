@@ -17,6 +17,10 @@ const queueOptions = {
     },
     connection:redisConnection,
     prefix: 'EMAIL-TASK',
+    backoff: {
+        type: 'exponential', // Exponential backoff strategy
+        delay: 1000, // Initial delay in milliseconds
+    },
     defaultJobOptions: {
         attempts: 5, // default number of retries for a mail
         removeonComplete: true
