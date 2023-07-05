@@ -1,3 +1,3 @@
-web: yarn start
+web: yarn build && yarn start
 
 release: yarn migrate:prod
