@@ -4,3 +4,4 @@ node_modules
 .env.development
 logs
 dist
+yarn-error.log
