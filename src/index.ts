@@ -1,3 +1,4 @@
+console.log("I am here");
 import "reflect-metadata";
 import app from './app';
 import * as dotenv from 'dotenv';
@@ -7,7 +8,6 @@ import { Application } from 'express';
 
 
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
-console.log("I am here");
 class Server {
   private port = process.env.PORT || 8000;
   private app;
