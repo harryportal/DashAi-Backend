@@ -13,9 +13,9 @@ export const comparePassword = (password: string, hash:string) => {
   return bcrypt.compare(password, hash);
 };
 
-const secret: string | undefined = process.env.JWT_SECRET;
+const secret: string | undefined = process.env.JWT_SECRET as string;
 
-if(!secret) { throw new InternalServerError("JWT SECRET HAS NO VALUE!")}
+//if(!secret) { throw new InternalServerError("JWT SECRET HAS NO VALUE!")}
 
 
 export const createAcessToken = (user: User) => {
