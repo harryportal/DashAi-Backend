@@ -71,7 +71,7 @@ export class AuthService implements IAuthService{
         const hashedpassword = await hashPassword(password);
         user = await this.authRepository.createUser(email, hashedpassword);
         const verificationToken = createVerificationToken(email, user.id);
-        await this.authRepository.addVerificationToken(email, verificationToken);
+        await this.authRepository.addVerificationToken(user.id, verificationToken);
         await this.sendVerificationmail(email,verificationToken);
     }
 

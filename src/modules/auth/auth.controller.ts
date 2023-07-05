@@ -10,8 +10,9 @@ export class AuthController {
         this.authService = authService;
     }
 
-    public async signUp(req:Request, res:Response){
+    public signUp = async(req:Request, res:Response)=>{
         const {email, password} = req.body;
+        console.log("Kuye Damilola")
         await this.authService.signUp(email, password);
         return res.status(201).json({success:true, message:"A verification link has been sent to your email address!"})
     }

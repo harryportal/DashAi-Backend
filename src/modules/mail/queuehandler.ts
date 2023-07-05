@@ -1,13 +1,21 @@
-import { Queue, QueueOptions, RedisConnection, Worker, Job } from "bullmq";
+import { Queue, QueueOptions, Worker, Job } from "bullmq";
 import { MailTypes, IMailService, IEmailData, IEmailQueue } from "./mail.interface";
 import logger from "../../utils/logging/winston";
 import { inject, injectable } from "inversify";
+
+
+const redisConnection = {
+    host: 'localhost',
+    port: 6379,
+}
+
 
 const queueOptions = { 
     limiter:{
         max:100, // maximum number of tasks the queue can take
         duration:10000  // miliseconds to wait after reaching max limit
     },
+    connection:redisConnection,
     prefix: 'EMAIL-TASK',
     defaultJobOptions: {
         attempts: 5, // default number of retries for a mail
@@ -15,7 +23,7 @@ const queueOptions = {
     }
 } as QueueOptions;
 
-const REDIS_URL = process.env.REDIS_URL as unknown as typeof RedisConnection;
+const emailQueueName = 'email-queue';
 
 @injectable()
 export default class EmailQueue implements IEmailQueue{
@@ -24,16 +32,29 @@ export default class EmailQueue implements IEmailQueue{
     private emailService: IMailService;
     constructor(@inject(MailTypes.IMailService)mailSerivce:IMailService){
         this.emailService =  mailSerivce;
-        this.queue =  new Queue('Email Queue', queueOptions, REDIS_URL);
-        this.worker = new Worker("Email Queue", async(emailJob:Job)=>{
-            logger.info("Processing Email Notification Task")
-            await this.emailService.sendMail(emailJob.data);
-        });
+        this.queue =  new Queue(emailQueueName, queueOptions);
+        this.worker = new Worker(emailQueueName, async(emailJob:Job)=>{
+            this.processEmailJobTask(emailJob) }, queueOptions);
     }
 
+    private async processEmailJobTask(emailJob:Job){
+        logger.info("Processing Email Notification Task")
+        const respone = await this.emailService.sendMail(emailJob.data)
+        if(respone){
+            emailJob.moveToCompleted(true, "done")
+        }else{
+            emailJob.moveToFailed(new Error("Processing task Failed"), "failed")
+        }
+    }
     public async addEmailToQueue(emailData:IEmailData):Promise<void>{
-        await this.queue.add("email_notification", emailData);
-        logger.info(`Email to ${emailData.to} has been added to the Queue`)
+        try {
+            await this.queue.add("email_notification", emailData);
+            logger.info(`Email to ${emailData.to} has been added to the Queue`)
+          } catch (error) {
+            logger.error(`Email to ${emailData.to} has been added to the Queue`)
+          }
+       
+        
     }
 }
 

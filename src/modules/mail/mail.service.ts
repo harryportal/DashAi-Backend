@@ -19,13 +19,16 @@ export default class MailService implements IMailService{
             service:"gmail",
             host:"smtp.gmail.com",
             port: 587,
+            tls: {
+                rejectUnauthorized: false,
+            },
             auth:{
                 user:process.env.GOOGLE_MAIL_SENDER,
                 pass:process.env.GOOGLE_APP_KEY
             }
         }) };
 
-    public async sendMail(options: IEmailData){
+    public sendMail = async(options: IEmailData):Promise<boolean>=>{
         try {
             const info = await this.transporter
             .sendMail({ 
@@ -37,8 +40,10 @@ export default class MailService implements IMailService{
             })
             logger.info(`Mail sent successfully!!`);
             logger.info(`[MailResponse]=${info.response} [MessageID]=${info.messageId}`);
+            return true;
         }catch(error:any){
             logger.error("Error Sending Mail", error)
+            return false;
         }
     }
 }
