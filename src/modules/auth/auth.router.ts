@@ -21,6 +21,6 @@ authRouter.post("/reset-password", RequestValidator.validate(ResetPassword), aut
 authRouter.get("/verification", protect, authController.getVerficiationMail)
 authRouter.post("/verification", authController.verifyEmail);
 authRouter.get("/google", passport.authenticate("google", {scope: ["profile", "email"] }))
-authRouter.post("/google/redirect", passport.authenticate("google"), authController.googleSignOn);
+authRouter.get("/google/redirect", passport.authenticate("google"), authController.googleSignOn);
 
 export default authRouter;
