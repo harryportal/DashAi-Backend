@@ -13,7 +13,6 @@ passport.use(
         {
             clientID:GOOGLE_CLIENTID,
             clientSecret: GOOGLE_CLIENTSECRET,
-            callbackURL: "/auth/google/redirect",
         }, async(acessToken, refreshToken, profile, done)=>{
                 const {email, email_verified} = profile._json;
                 // Throws an error if user gmail is not verified
