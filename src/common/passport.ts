@@ -13,6 +13,7 @@ passport.use(
         {
             clientID:GOOGLE_CLIENTID,
             clientSecret: GOOGLE_CLIENTSECRET,
+            callbackURL: "https://backend-dash-ai-04b6c93b5155.herokuapp.com/auth/google/redirect"
         }, async(acessToken, refreshToken, profile, done)=>{
                 const {email, email_verified} = profile._json;
                 // Throws an error if user gmail is not verified
