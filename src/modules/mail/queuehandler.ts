@@ -2,19 +2,17 @@ import { Queue, QueueOptions, Worker, Job, RedisConnection } from "bullmq";
 import { MailTypes, IMailService, IEmailData, IEmailQueue } from "./mail.interface";
 import logger from "../../utils/logging/winston";
 import { inject, injectable } from "inversify";
+import { configureRedisUrl } from "../../utils/redis/configureUrl";
 
 const connectionString = process.env.REDIS_URL as string;
+const redisConnection = configureRedisUrl(connectionString);
 
 const queueOptions = { 
     limiter:{
         max:100, // maximum number of tasks the queue can take
         duration:10000  // miliseconds to wait after reaching max limit
     },
-    connection:{
-        host: connectionString.split(":")[2].split("@")[1],
-        port: parseInt(connectionString.split(":")[3]),
-        password:connectionString.split(":")[2].split("@")[0]
-    },
+    connection:redisConnection,
     prefix: 'EMAIL-TASK',
     backoff: {
         type: 'exponential', // Exponential backoff strategy
@@ -42,10 +40,13 @@ export default class EmailQueue implements IEmailQueue{
 
     private async processEmailJobTask(emailJob:Job){
         logger.info("Processing Email Notification Task")
-        const respone = await this.emailService.sendMail(emailJob.data)
-        if(respone){
-            emailJob.moveToCompleted(true, "done")
+        const response = await this.emailService.sendMail(emailJob.data)
+        if(response){
+            logger.info("Proccesing Email Notification Task Completed")
+        }else{
+            logger.error("Proccesing Email Notification Task Failed")
         }
+
     }
     public async addEmailToQueue(emailData:IEmailData):Promise<void>{
         try {
