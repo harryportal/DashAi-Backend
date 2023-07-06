@@ -1,10 +1,10 @@
+import "express-async-errors";
 import express from "express";
 import morgan from 'morgan';
 import cors from 'cors';
 import { ErrorHandler } from './common/error';
 import { Application } from 'express';
 import passport from "passport";
-import "express-async-errors";
 import authRouter from "./modules/auth/auth.router";
 import session from "express-session"
 
@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use("/auth", authRouter);
+app.use("api/v1/auth", authRouter);
 
 
 

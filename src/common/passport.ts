@@ -3,7 +3,6 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { UnAuthorizedError } from "./error";
 import { prisma } from "../utils/db/prisma";
 import { User } from "@prisma/client";
-import "express-async-errors"
 
 
 const GOOGLE_CLIENTID = process.env.GOOGLE_CLIENTID as string;
@@ -14,7 +13,7 @@ passport.use(
         {
             clientID:GOOGLE_CLIENTID,
             clientSecret: GOOGLE_CLIENTSECRET,
-            callbackURL: "https://backend-dash-ai-04b6c93b5155.herokuapp.com/auth/google/redirect"
+            callbackURL: "/api/v1/auth/google/redirect"
         }, async(acessToken, refreshToken, profile, done)=>{
                 const {email, email_verified} = profile._json;
                 // Throws an error if user gmail is not verified
@@ -23,16 +22,14 @@ passport.use(
                 }
                 /*
                 - Check if user with email already exists
-                - If true, ensure that the user signed up with google by checking the googleSignOn Status
                 - If false, create an new user with email and set verification and googleSignOn Status to true
+                - Todo: Handle logic for users that initially signed up with password asking them to reset their password
+                - instead. Well the idea I intend using now is to attach an error object to the the done callback and find
+                - a way to extract and pass to the front end redirect url
                  */
                 let user = await prisma.user.findUnique({
                     where: {email}
                 });
-                if(user && (!user.googleSignOn || !user.verified)){
-                    throw new UnAuthorizedError("Account was created with password, Please login or reset password")
-                }
-                
                 if(!user){
                     user = await prisma.user.create({
                         data:{
