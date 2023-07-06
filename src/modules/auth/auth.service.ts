@@ -120,7 +120,7 @@ export class AuthService implements IAuthService{
     private async generateToken(user:User):Promise<IToken>{
         const accessToken =  createAcessToken(user);
         const refreshToken = createRefreshToken(user);
-        const refreshTokenTime = process.env.REFRESHTOKEN_EXPIREAT as unknown as number; // no of days
+        const refreshTokenTime = process.env.REFRESHTOKEN_TIME as unknown as number; // no of days
         const refreshTokenExpiresAt = new Date(Date.now() + refreshTokenTime * 24 * 60 * 60 * 1000); 
         await this.authRepository.createRefreshToken(refreshToken, refreshTokenExpiresAt, user.id)
         return {refreshToken, accessToken};

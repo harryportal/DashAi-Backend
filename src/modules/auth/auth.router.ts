@@ -1,8 +1,8 @@
 import RequestValidator from "../../common/validation";
 import container from "../../di/inversify.config";
 import { AuthController } from "./auth.controller";
-import { Request, Response } from "express";
 import {Router} from "express";
+import "express-async-errors";
 import { AddProfile, ForgotPassword, ResetPassword, SignIn, SignUp } from "./auth.validation";
 import { protect } from "../../common/auth";
 import passport from "passport";
@@ -21,10 +21,6 @@ authRouter.post("/reset-password", RequestValidator.validate(ResetPassword), aut
 authRouter.get("/verification", protect, authController.getVerficiationMail)
 authRouter.post("/verification", authController.verifyEmail);
 authRouter.get("/google", passport.authenticate("google", {scope: ["profile", "email"] }))
-authRouter.get("/google/redirect", passport.authenticate("google"), (req: Request, res: Response) => {
-    console.log(req.user)
-    console.log(req.body);
-    res.json({success:true})
-})
+authRouter.get("/google/redirect", passport.authenticate("google"), authController.googleSignOn);
 
 export default authRouter;

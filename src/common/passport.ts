@@ -28,7 +28,7 @@ passport.use(
                 let user = await prisma.user.findUnique({
                     where: {email}
                 });
-                if(user && (!user.googleSignOn || !user.activeStatus)){
+                if(user && (!user.googleSignOn || !user.verified)){
                     throw new UnAuthorizedError("Account was created with password, Please login or reset password")
                 }
                 
