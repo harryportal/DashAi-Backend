@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
-import { AuthTypes, IAuthService, updateUser } from "./auth.dto";
+import { AuthRequest, AuthTypes, IAuthService, updateUser } from "./auth.dto";
 import { Request, Response } from "express";
-import { AuthRequest } from "./auth.dto";
+import { User } from "@prisma/client";
 
 @injectable()
 export class AuthController {
@@ -22,38 +22,44 @@ export class AuthController {
         return res.status(200).json({success:true, data});
     }
 
+    public googleSignOn = async(req:Request, res:Response)=>{
+        const user = req.user as User;
+        const response = await this.authService.googleSignOn(user);
+        res.status(200).json({success:true, data:response}) // change implementation to redirect to frontend url
+    }
+
     public addProfile = async(req:AuthRequest, res:Response)=>{
         const profileData = req.body as updateUser;
-        const userId = req.user!.id;
+        const userId = req.payload!.id;
         const updatedProfile = await this.authService.addProfile(profileData, userId);
         return res.status(200).json({success:true, data:updatedProfile})
     }
 
     public getVerficiationMail = async(req:AuthRequest, res:Response)=>{
-        const email = req.user!.email;
+        const email = req.payload!.email;
         await this.authService.getVerificationMail(email);
         return res.status(200).json({success:true, message:"A verification link has been sent to your email address!"})
     }
 
-    public logout = async(req:AuthRequest, res:Response)=>{
+    public logout = async(req:Request, res:Response)=>{
         const refreshToken = req.query.token as string;
         await this.authService.deleteRefreshToken(refreshToken);
         return res.status(200).json({success:true, message:"Logout Successful"})
     }
 
-    public forgotPassword = async(req:AuthRequest, res:Response)=>{
+    public forgotPassword = async(req:Request, res:Response)=>{
         const {email} = req.body;
         await this.authService.forgotPassword(email);
         return res.status(200).json({success:true, message:"A password reset link has been sent to your mail"})
     }
 
-    public resetPassword = async(req:AuthRequest, res:Response)=>{
+    public resetPassword = async(req:Request, res:Response)=>{
         const {token, password, confirmPassword} = req.body;
         await this.authService.resetPassword(token, password, confirmPassword);
         return res.status(200).json({success:true, message:"Your password has been successfully reset!"})
     }
 
-    public verifyEmail = async(req:AuthRequest, res:Response)=>{
+    public verifyEmail = async(req:Request, res:Response)=>{
         const token = req.query.token as string;
         await this.authService.verifyEmail(token)
         return res.status(200).json({success:true, message:"Your Email has been verified!"})

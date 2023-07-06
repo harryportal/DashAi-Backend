@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { BadRequestError, ConflictError, ForbiddenError, UnAuthorizedError } from "../../common/error";
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
-import { AuthTypes, IAuthRepository, IAuthService, ISignInResponse, UserProfile, jwtPayload, updateUser } from "./auth.dto";
+import { AuthTypes, IAuthRepository, IAuthService, ISignInResponse, IToken, UserProfile, jwtPayload, updateUser } from "./auth.dto";
 import { injectable, inject } from "inversify";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
@@ -105,15 +105,31 @@ export class AuthService implements IAuthService{
 
         const checkPassword = await comparePassword(password, user.password!)
         if(!checkPassword) { throw new UnAuthorizedError("Invalid Login Credentials") }
-
-        const accessToken =  createAcessToken(user);
-        const refreshToken = createRefreshToken(user);
+        const {refreshToken, accessToken} = await this.generateToken(user);
         const onboardingStatus = user.activeStatus;
         const verificationStatus = user.verified;
+        return {accessToken, refreshToken, onboardingStatus, verificationStatus};
+    }
+
+    /**
+     * Generates the access Token and refresh token from the user object
+     * Add the Refresh Token to the database and attach to the user
+     * @param user 
+     * @returns 
+     */
+    private async generateToken(user:User):Promise<IToken>{
+        const accessToken =  createAcessToken(user);
+        const refreshToken = createRefreshToken(user);
         const refreshTokenTime = process.env.REFRESHTOKEN_EXPIREAT as unknown as number; // no of days
         const refreshTokenExpiresAt = new Date(Date.now() + refreshTokenTime * 24 * 60 * 60 * 1000); 
-
         await this.authRepository.createRefreshToken(refreshToken, refreshTokenExpiresAt, user.id)
+        return {refreshToken, accessToken};
+    }   
+
+    public async googleSignOn(user:User):Promise<ISignInResponse>{
+        const  {accessToken, refreshToken} = await this.generateToken(user);
+        const onboardingStatus = user.activeStatus;
+        const verificationStatus = user.verified;
         return {accessToken, refreshToken, onboardingStatus, verificationStatus};
     }
 

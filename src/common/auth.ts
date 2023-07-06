@@ -1,13 +1,13 @@
-import { Response, NextFunction } from 'express';
-import { AuthRequest }from '../modules/auth/auth.dto';
+import { Response,Request, NextFunction } from 'express';
 import { UnAuthorizedError } from './error';
 import { verifyJWT } from '../utils/jwtAuth/jwt';
 import { prisma } from '../utils/db/prisma';
+import { AuthRequest } from '../modules/auth/auth.dto';
 
 
 export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
 
-    const bearer = req.headers.authorization;
+    const bearer = req.headers["authorization"];
     if (!bearer) {
       throw new UnAuthorizedError('No Authentication Credentials Provided');
     }
@@ -30,7 +30,7 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction) => 
     }
 
     // This prevents the client from using the refresh token for authentication
-    req.user = payload;
+    req.payload = payload;
     next();
     
   };

@@ -1,25 +1,21 @@
 import { RefreshToken, User } from "@prisma/client";
 import { Request } from "express";
 
-
-export interface AuthRequest extends Request {
-    user?: jwtPayload
-}
-
 export interface jwtPayload{
     id: string;
     email: string;
-    refferalId:string
-    activeStatus: boolean;
-    firstname: string;
-    lastname: string;
     type: string;
+}
+
+export interface AuthRequest extends Request {
+    payload?:jwtPayload
 }
 
 export interface ISignIn {
     email: string
     password:string
 }
+
 
 export interface IAuthRepository {
     getUserwithId(userId: string): Promise<User | null>;
@@ -41,6 +37,7 @@ export interface IAuthService {
   signIn(email: string, password: string): Promise<ISignInResponse>;
   addProfile(profile: updateUser, id: string): Promise<UserProfile>;
   getVerificationMail(email: string): Promise<void>;
+  googleSignOn(user:User):Promise<ISignInResponse>
   resetPassword(token: string, password: string, confirmPassword: string): Promise<void>;
   getAccessToken(refreshToken: string): Promise<string>;
   deleteRefreshToken(refreshToken: string): Promise<void>;
@@ -58,6 +55,6 @@ export interface ISignInResponse{
     onboardingStatus:boolean,
     verificationStatus:boolean,
 }
-
+export interface IToken extends Pick<ISignInResponse, "accessToken"|"refreshToken">{};
 export type UserProfile = Omit<User, 'password' | "verificationToken">;
 export type updateUser = Pick<User, "name" | "age" | "gender" | "location" >;
