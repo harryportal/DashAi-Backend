@@ -103,7 +103,7 @@ export class AuthService implements IAuthService{
         const user = await this.authRepository.getUserwithEmail(email.toLowerCase());
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
-        const checkPassword = await comparePassword(password, user.password)
+        const checkPassword = await comparePassword(password, user.password!)
         if(!checkPassword) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
         const accessToken =  createAcessToken(user);
