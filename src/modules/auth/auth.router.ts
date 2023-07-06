@@ -16,7 +16,7 @@ authRouter.post("/signup", RequestValidator.validate(SignUp), authController.sig
 authRouter.post("/signin", RequestValidator.validate(SignIn), authController.signIn)
 authRouter.post("/profile", RequestValidator.validate(AddProfile), authController.addProfile)
 authRouter.post("/logout", protect, authController.logout)
-authRouter.post("/forgot-password", RequestValidator.validate(ForgotPassword), authController.signIn)
+authRouter.post("/forgot-password", RequestValidator.validate(ForgotPassword), authController.forgotPassword)
 authRouter.post("/reset-password", RequestValidator.validate(ResetPassword), authController.resetPassword)
 authRouter.get("/verification", protect, authController.getVerficiationMail)
 authRouter.post("/verification", authController.verifyEmail);
