@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { UnAuthorizedError } from "./error";
 import { prisma } from "../utils/db/prisma";
 import { User } from "@prisma/client";
+import "express-async-errors"
 
 
 const GOOGLE_CLIENTID = process.env.GOOGLE_CLIENTID as string;

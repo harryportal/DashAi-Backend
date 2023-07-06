@@ -4,8 +4,8 @@ import cors from 'cors';
 import { ErrorHandler } from './common/error';
 import { Application } from 'express';
 import passport from "passport";
-import authRouter from "./modules/auth/auth.router";
 import "express-async-errors";
+import authRouter from "./modules/auth/auth.router";
 import session from "express-session"
 
 
