@@ -20,7 +20,7 @@ model User {
   email String @unique
   password String?
   googleSignOn Boolean @default(false)
-  verified Boolean @default(true)
+  verified Boolean @default(false)
   activeStatus Boolean @default(false)
   calendarStatus Boolean @default(false)
   verificationToken String? @unique
