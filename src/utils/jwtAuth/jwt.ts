@@ -1,6 +1,5 @@
 import * as bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
-import { InternalServerError } from "../../common/error";
 import { jwtPayload } from "../../modules/auth/auth.dto";
 import { User } from "@prisma/client";
 
@@ -14,9 +13,6 @@ export const comparePassword = (password: string, hash:string) => {
 };
 
 const secret: string | undefined = process.env.JWT_SECRET as string;
-
-//if(!secret) { throw new InternalServerError("JWT SECRET HAS NO VALUE!")}
-
 
 export const createAcessToken = (user: User) => {
 
