@@ -10,8 +10,8 @@ import { IEmailQueue, MailTypes } from "../mail/mail.interface";
 
 @injectable()
 export class AuthService implements IAuthService{
-    private authRepository: IAuthRepository;
-    private mailService: IEmailQueue;
+    private readonly authRepository: IAuthRepository;
+    private readonly mailService: IEmailQueue;
     constructor(@inject(AuthTypes.IAuthRepository)authRepository:IAuthRepository,
     @inject(MailTypes.IEmailQueue)mailService:IEmailQueue){
         this.authRepository = authRepository;

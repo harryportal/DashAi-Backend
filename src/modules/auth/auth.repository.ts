@@ -5,8 +5,8 @@ import { IAuthRepository, updateUser } from "./auth.dto";
 
 @injectable()
 export default class AuthRepository implements IAuthRepository{
-    private user;
-    private refreshToken;
+    private readonly user;
+    private readonly refreshToken;
     constructor(@inject(PrismaClient)prisma:PrismaClient){
         this.user = prisma.user;
         this.refreshToken = prisma.refreshToken;

@@ -1,4 +1,4 @@
-import { Queue, QueueOptions, Worker, Job, RedisConnection } from "bullmq";
+import { Queue, QueueOptions, Worker, Job } from "bullmq";
 import { MailTypes, IMailService, IEmailData, IEmailQueue } from "./mail.interface";
 import logger from "../../utils/logging/winston";
 import { inject, injectable } from "inversify";

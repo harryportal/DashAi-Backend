@@ -5,7 +5,7 @@ import { User } from "@prisma/client";
 
 @injectable()
 export class AuthController {
-    private authService:IAuthService;
+    private readonly authService:IAuthService;
     constructor(@inject(AuthTypes.IAuthService)authService:IAuthService){
         this.authService = authService;
     }
