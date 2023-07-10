@@ -24,9 +24,28 @@ model User {
   activeStatus Boolean @default(false)
   calendarStatus Boolean @default(false)
   verificationToken String? @unique
+  wishlists   Wishlist[]
   refreshTokens    RefreshToken[]
 }
 
+model Wishlist {
+  id String @id @default(uuid())
+  name String
+  description String?
+  shortId   String
+  userId  String 
+  user    User @relation(fields: [userId], references: [id])
+  gifts Gift[]
+}
+
+model Gift {
+  id String @id @default(uuid())
+  description String
+  giftUrl String // references the url of the gift(the external api url of the gift)
+  purchased Boolean
+  wishlistId  String
+  wishlist Wishlist @relation(fields: [wishlistId], references: [id])
+}
 
 model RefreshToken {
   id            String      @id @default(uuid())
