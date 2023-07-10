@@ -1,6 +1,6 @@
 import { PrismaClient, RefreshToken, User } from "@prisma/client";
 import { injectable, inject } from "inversify";
-import { IAuthRepository, updateUser } from "./auth.dto";
+import { IAuthRepository, updateUser } from "./auth.interface";
 
 
 @injectable()

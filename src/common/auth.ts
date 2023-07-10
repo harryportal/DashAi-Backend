@@ -2,7 +2,7 @@ import { Response,Request, NextFunction } from 'express';
 import { UnAuthorizedError } from './error';
 import { verifyJWT } from '../utils/jwtAuth/jwt';
 import { prisma } from '../utils/db/prisma';
-import { AuthRequest } from '../modules/auth/auth.dto';
+import { AuthRequest } from '../modules/auth/auth.interface';
 
 
 export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {

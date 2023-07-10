@@ -1,6 +1,6 @@
 import * as bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
-import { jwtPayload } from "../../modules/auth/auth.dto";
+import { jwtPayload } from "../../modules/auth/auth.interface";
 import { User } from "@prisma/client";
 
 export const hashPassword = (password: string) => {

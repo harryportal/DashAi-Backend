@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { AuthRequest, AuthTypes, IAuthService, updateUser } from "./auth.dto";
+import { AuthRequest, AuthTypes, IAuthService, updateUser } from "./auth.interface";
 import { Request, Response } from "express";
 import { User } from "@prisma/client";
 
