@@ -1,6 +1,6 @@
-import { PrismaClient, RefreshToken, User } from "@prisma/client";
+import { Prisma, PrismaClient, RefreshToken, User } from "@prisma/client";
 import { injectable, inject } from "inversify";
-import { IAuthRepository, updateUser } from "./auth.interface";
+import { IAuthRepository } from "./auth.interface";
 
 
 @injectable()
@@ -12,21 +12,14 @@ export default class AuthRepository implements IAuthRepository{
         this.refreshToken = prisma.refreshToken;
     }
 
-    public async getUserwithId(userId:string):Promise<User | null>{
+    public async getUser(uniqueInput:Prisma.UserWhereUniqueInput):Promise<User | null>{
         const user = await this.user.findUnique({
-            where: {id: userId}
+            where: uniqueInput
         });
         return user;
     };
 
-    public async getUserwithEmail(email:string):Promise<User | null>{
-        const user = await this.user.findUnique({
-            where: {email}
-        });
-        return user;
-    }
-
-    public async addUserProfile(userId:string, userData:updateUser):Promise<User>{
+    public async addUserProfile(userId:string, userData:Prisma.UserUpdateInput):Promise<User>{
         const {name, age, gender, location } = userData;
         const updatedUser = await this.user.update({
             where:{ id:userId},

@@ -1,5 +1,6 @@
-import { RefreshToken, User } from "@prisma/client";
+import { Prisma, RefreshToken, User } from "@prisma/client";
 import { Request } from "express";
+import { AddProfileDto } from "./auth.dtos";
 
 export interface jwtPayload{
     id: string;
@@ -18,9 +19,8 @@ export interface ISignIn {
 
 
 export interface IAuthRepository {
-    getUserwithId(userId: string): Promise<User | null>;
-    getUserwithEmail(email: string): Promise<User | null>;
-    addUserProfile(userId: string, userData: Partial<updateUser>): Promise<User>;
+    getUser(uniqueInput:Prisma.UserWhereUniqueInput): Promise<User | null>
+    addUserProfile(userId: string, userData: Prisma.UserUpdateInput): Promise<User>;
     resetPassword(userId: string, newPassword: string): Promise<void>;
     createUser(email: string, password: string): Promise<User>;
     addVerificationToken(id:string, token:string):Promise<void>
@@ -35,7 +35,7 @@ export interface IAuthService {
   signUp(email: string, password: string): Promise<void>;
   verifyEmail(verificationToken: string): Promise<void>;
   signIn(email: string, password: string): Promise<ISignInResponse>;
-  addProfile(profile: updateUser, id: string): Promise<UserProfile>;
+  addProfile(profile: AddProfileDto, id: string): Promise<UserProfile>;
   getVerificationMail(email: string): Promise<void>;
   googleSignOn(user:User):Promise<ISignInResponse>
   resetPassword(token: string, password: string, confirmPassword: string): Promise<void>;
@@ -57,4 +57,3 @@ export interface ISignInResponse{
 }
 export interface IToken extends Pick<ISignInResponse, "accessToken"|"refreshToken">{};
 export type UserProfile = Omit<User, 'password' | "verificationToken">;
-export type updateUser = Pick<User, "name" | "age" | "gender" | "location" >;

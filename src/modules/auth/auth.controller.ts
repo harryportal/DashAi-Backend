@@ -1,7 +1,8 @@
 import { inject, injectable } from "inversify";
-import { AuthRequest, AuthTypes, IAuthService, updateUser } from "./auth.interface";
+import { AuthRequest, AuthTypes, IAuthService } from "./auth.interface";
 import { Request, Response } from "express";
 import { User } from "@prisma/client";
+import { AddProfileDto } from "./auth.dtos";
 
 @injectable()
 export class AuthController {
@@ -29,7 +30,7 @@ export class AuthController {
     }
 
     public addProfile = async(req:AuthRequest, res:Response)=>{
-        const profileData = req.body as updateUser;
+        const profileData = req.body as AddProfileDto;
         const userId = req.payload!.id;
         const updatedProfile = await this.authService.addProfile(profileData, userId);
         return res.status(200).json({success:true, data:updatedProfile})

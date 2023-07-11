@@ -1,12 +1,12 @@
 import { IsEmail, IsIn, IsNotEmpty, IsNumber, IsString, Matches, Max, Min, MinLength } from "class-validator";
 
-export class ForgotPassword{
+export class ForgotPasswordDto{
     @IsEmail()
     email:string
 }
 
 
-export class SignUp extends ForgotPassword {
+export class SignUpDto extends ForgotPasswordDto {
 
     @MinLength(8)
     @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/, {
@@ -16,13 +16,13 @@ export class SignUp extends ForgotPassword {
     password:string;
 }
 
-export class SignIn extends ForgotPassword{
+export class SignInDto extends ForgotPasswordDto{
     
     @IsString()
     password:string;
 }
 
-export class AddProfile {
+export class AddProfileDto {
     @IsString()
     @IsNotEmpty()
     name: string;
@@ -41,7 +41,7 @@ export class AddProfile {
     gender: string;
 }
 
-export class ResetPassword{
+export class ResetPasswordDto{
     @IsString()
     token:string;
 
