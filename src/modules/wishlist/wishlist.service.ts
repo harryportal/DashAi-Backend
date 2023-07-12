@@ -1,16 +1,17 @@
 import { inject, injectable } from "inversify";
-import { IWishlistRepository, Types } from "./wishlist.interface";
+import { IWishlistRepository, IWishlistService, Types } from "./wishlist.interface";
 import { AddWishlistDto } from "./wishlist.dtos";
 import shortid from "shortid";
+import { Wishlist } from "@prisma/client";
 
 @injectable()
-export class WishlistService{
+export class WishlistService implements IWishlistService{
     private readonly wishlistRepository:IWishlistRepository;
     constructor(@inject(Types.IWishlistRepository)repository:IWishlistRepository){
         this.wishlistRepository = repository;
     }
 
-    async addWishlist(data:AddWishlistDto, userId:string){
+    async addWishlist(data:AddWishlistDto, userId:string):Promise<void>{
         const {name, description} = data;
         const id = userId;
         const shortId = this.generateShortId();
@@ -31,7 +32,7 @@ export class WishlistService{
      * @param id 
      * @param shortId  
      */
-    async getWishlist(id:string | undefined, shortId:string | undefined){
+    async getWishlist(id:string | undefined, shortId:string | undefined):Promise<Wishlist | null>{
         const wishlist = this.wishlistRepository.getWishlist({id, shortId});
         return wishlist;
     }

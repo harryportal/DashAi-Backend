@@ -6,10 +6,7 @@ import { AddProfileDto } from "./auth.dtos";
 
 @injectable()
 export class AuthController {
-    private readonly authService:IAuthService;
-    constructor(@inject(Types.IAuthService)service:IAuthService){
-        this.authService = service;
-    }
+    constructor(@inject(Types.IAuthService)private readonly authService:IAuthService){}
 
     public signUp = async(req:Request, res:Response)=>{
         const {email, password} = req.body;

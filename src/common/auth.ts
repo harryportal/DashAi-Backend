@@ -1,11 +1,12 @@
-import { Response,Request, NextFunction } from 'express';
-import { UnAuthorizedError } from './error';
+import { Response, NextFunction } from 'express';
+import { ForbiddenError, UnAuthorizedError } from './error';
 import { verifyJWT } from '../utils/jwtAuth/jwt';
 import { prisma } from '../utils/db/prisma';
 import { AuthRequest } from '../modules/auth/auth.interface';
 
 
-export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const protect = (checkVerified:boolean = false)=>{
+  return async(req: AuthRequest, res: Response, next: NextFunction) => {
 
     const bearer = req.headers["authorization"];
     if (!bearer) {
@@ -24,13 +25,16 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction) => 
     }
 
     // check the database if user with Id exists
-    const user = prisma.user.findUnique({where: {id:payload.id}});
+    const user = await prisma.user.findUnique({where: {id:payload.id}});
     if(!user) {
-      throw new UnAuthorizedError("Invalid or Deleted User")
+      throw new UnAuthorizedError("User Not Found")
     }
 
+    if(checkVerified && !user.verified){
+      throw new ForbiddenError("Please verify your Email Address to Continue")
+    }
     // This prevents the client from using the refresh token for authentication
     req.payload = payload;
     next();
     
-  };
+  }};

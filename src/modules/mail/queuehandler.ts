@@ -30,9 +30,7 @@ const emailQueueName = 'email-queue';
 export default class EmailQueue implements IEmailQueue{
     private queue: Queue;
     private worker: Worker;
-    private emailService: IMailService;
-    constructor(@inject(MailTypes.IMailService)mailSerivce:IMailService){
-        this.emailService =  mailSerivce;
+    constructor(@inject(MailTypes.IMailService)private readonly emailService:IMailService){
         this.queue =  new Queue(emailQueueName, queueOptions);
         this.worker = new Worker(emailQueueName, async(emailJob:Job)=>{
             this.processEmailJobTask(emailJob) }, queueOptions);

@@ -10,17 +10,15 @@ import "../../common/passport"
 
 
 const authController = container.resolve<AuthController>(AuthController);
-const authRouter = Router();
+export const router = Router();
 
-authRouter.post("/signup", RequestValidator.validate(SignUpDto), authController.signUp)
-authRouter.post("/signin", RequestValidator.validate(SignInDto), authController.signIn)
-authRouter.post("/profile", RequestValidator.validate(AddProfileDto), authController.addProfile)
-authRouter.post("/logout", protect, authController.logout)
-authRouter.post("/forgot-password", RequestValidator.validate(ForgotPasswordDto), authController.forgotPassword)
-authRouter.post("/reset-password", RequestValidator.validate(ResetPasswordDto), authController.resetPassword)
-authRouter.get("/verification", protect, authController.getVerficiationMail)
-authRouter.post("/verification", authController.verifyEmail);
-authRouter.get("/google", passport.authenticate("google", {scope: ["profile", "email"] }))
-authRouter.get("/google/redirect", passport.authenticate("google"), authController.googleSignOn);
-
-export default authRouter;
+router.post("/signup", RequestValidator.validate(SignUpDto), authController.signUp)
+router.post("/signin", RequestValidator.validate(SignInDto), authController.signIn)
+router.post("/profile", RequestValidator.validate(AddProfileDto), authController.addProfile)
+router.post("/logout", protect, authController.logout)
+router.post("/forgot-password", RequestValidator.validate(ForgotPasswordDto), authController.forgotPassword)
+router.post("/reset-password", RequestValidator.validate(ResetPasswordDto), authController.resetPassword)
+router.get("/verification", protect(), authController.getVerficiationMail)
+router.post("/verification", authController.verifyEmail);
+router.get("/google", passport.authenticate("google", {scope: ["profile", "email"] }))
+router.get("/google/redirect", passport.authenticate("google"), authController.googleSignOn);

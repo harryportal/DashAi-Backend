@@ -1,4 +1,5 @@
 import { Prisma, Wishlist } from "@prisma/client"
+import { AddWishlistDto } from "./wishlist.dtos";
 
 
 export interface IWishlistRepository{
@@ -8,6 +9,14 @@ export interface IWishlistRepository{
     deleteWishlist(where:Prisma.WishlistWhereUniqueInput):Promise<void>;
 }
 
+export interface IWishlistService{
+    addWishlist(data:AddWishlistDto, userId:string):Promise<void>;
+    getWishlist(id:string | undefined, shortId:string | undefined):Promise<Wishlist | null>;
+    
+}
+
+
 export const Types = {
-    IWishlistRepository:Symbol("IWishlistRepository")
+    IWishlistRepository:Symbol("IWishlistRepository"),
+    IWishlistService:Symbol("IWishlistService")
 }

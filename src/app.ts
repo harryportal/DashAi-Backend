@@ -5,8 +5,10 @@ import cors from 'cors';
 import { ErrorHandler } from './common/error';
 import { Application } from 'express';
 import passport from "passport";
-import authRouter from "./modules/auth/auth.router";
+import {router as authRouter} from "./modules/auth/auth.router";
 import session from "express-session"
+import {router as userRouter} from "./modules/user/user.router";
+import { router as wishlistRouter } from "./modules/wishlist/wishlist.router";
 
 
 const app: Application = express();
@@ -31,6 +33,8 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/wishlist", wishlistRouter)
 
 
 

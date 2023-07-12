@@ -3,6 +3,7 @@ import { BadRequestError, ConflictError, ForbiddenError, UnAuthorizedError } fro
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
 import { Types, IAuthRepository, IAuthService, ISignInResponse, IToken, UserProfile, jwtPayload } from "./auth.interface";
 import { injectable, inject } from "inversify";
+import { IUserRepository, Types as UserTypes } from "../user/user.interface";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
 import { IEmailQueue, MailTypes } from "../mail/mail.interface";
@@ -11,13 +12,9 @@ import { AddProfileDto } from "./auth.dtos";
 
 @injectable()
 export class AuthService implements IAuthService{
-    private readonly authRepository: IAuthRepository;
-    private readonly mailService: IEmailQueue;
-    constructor(@inject(Types.IAuthRepository)repository:IAuthRepository,
-    @inject(MailTypes.IEmailQueue)service:IEmailQueue){
-        this.authRepository = repository;
-        this.mailService = service;
-    }
+    constructor(@inject(Types.IAuthRepository)private readonly authRepository:IAuthRepository,
+    @inject(UserTypes.IUserRepository)private readonly userRepository:IUserRepository,
+    @inject(MailTypes.IEmailQueue)private readonly mailService:IEmailQueue){}
 
     /**
      * verifies the token and sends the user payload if valid
@@ -66,13 +63,13 @@ export class AuthService implements IAuthService{
      * @param password 
      */
     public async signUp(email:string, password:string):Promise<void>{
-        let user = await this.authRepository.getUser({email});
+        let user = await this.userRepository.getUser({email});
         if(user){ throw new ConflictError("Email Already Exists. Please use another email Adress") }
         password = await hashPassword(password);
-        user = await this.authRepository.createUser({email, password});
+        user = await this.userRepository.createUser({email, password});
         const verificationToken = createVerificationToken(email, user.id);
         const id = user.id;
-        await this.authRepository.updateUser({id}, {verificationToken});
+        await this.userRepository.updateUser({id}, {verificationToken});
         await this.sendVerificationmail(email,verificationToken);
     }
 
@@ -86,11 +83,11 @@ export class AuthService implements IAuthService{
     public async verifyEmail(verificationToken:string):Promise<void>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
         const {email, id } = jwtPayload;
-        const user = await this.authRepository.getUser({id}) as User;
+        const user = await this.userRepository.getUser({id}) as User;
         if(!user || (user.verificationToken != verificationToken)){
             throw new UnAuthorizedError("Invalid or Expired Token!")
         }
-        await this.authRepository.updateUser({email}, {verificationToken:null, verified:true});
+        await this.userRepository.updateUser({email}, {verificationToken:null, verified:true});
     }
 
     /**
@@ -103,7 +100,7 @@ export class AuthService implements IAuthService{
      */
     public async signIn(email:string, password:string):Promise<ISignInResponse>{
         email = email.toLowerCase();
-        const user = await this.authRepository.getUser({email});
+        const user = await this.userRepository.getUser({email});
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
         const checkPassword = await comparePassword(password, user.password!)
@@ -146,10 +143,10 @@ export class AuthService implements IAuthService{
      * @returns the newly added profile
      */
     public async addProfile(profile:AddProfileDto, id:string):Promise<UserProfile>{
-        const user = await this.authRepository.getUser({id});
+        const user = await this.userRepository.getUser({id});
         if(!user){ throw new UnAuthorizedError("No user with Provided with Credentials") };
         if(!user.verified) { throw new ForbiddenError("Please verify your email address to Continue")}
-        let addedProfile = await this.authRepository.updateUser({id}, {...profile});
+        let addedProfile = await this.userRepository.updateUser({id}, {...profile});
         const {password, verificationToken, ...newProfile} = addedProfile;
         return newProfile;
     }
@@ -162,11 +159,11 @@ export class AuthService implements IAuthService{
      * @param email 
      */
     public async getVerificationMail(email:string){
-        const user = await this.authRepository.getUser({email}) as User;
+        const user = await this.userRepository.getUser({email}) as User;
         if(!user.verified){
-            await this.authRepository.updateUser({email}, {verificationToken:null});
+            await this.userRepository.updateUser({email}, {verificationToken:null});
             const verificationToken = createVerificationToken(email ,user.id);
-            await this.authRepository.updateUser({email}, {verificationToken});
+            await this.userRepository.updateUser({email}, {verificationToken});
             this.sendVerificationmail(email, verificationToken);
         }
     
@@ -189,7 +186,7 @@ export class AuthService implements IAuthService{
         }
         const id = jwtPayload.id;
         password = await hashPassword(password);
-        await this.authRepository.updateUser({id}, {password});
+        await this.userRepository.updateUser({id}, {password});
     }
 
     /**
@@ -204,7 +201,7 @@ export class AuthService implements IAuthService{
         const token = await this.authRepository.getRefreshToken(refreshToken);
         if (!token || token.expiresAt < new Date) { throw new UnAuthorizedError("Invalid Token Provided") }
         const email = verifiedPayload.email;
-        const user = await this.authRepository.getUser({email}) as User;
+        const user = await this.userRepository.getUser({email}) as User;
         const acessToken = createAcessToken(user);
         return acessToken;
     }
@@ -234,7 +231,7 @@ export class AuthService implements IAuthService{
      */
     public async forgotPassword(email:string){
         email = email.toLowerCase();
-        const user = await this.authRepository.getUser({email}) as User;
+        const user = await this.userRepository.getUser({email}) as User;
         if(!user) { throw new BadRequestError("No User with Email Address!") }
         const userToken = createResetToken(user.email, user.id)
 

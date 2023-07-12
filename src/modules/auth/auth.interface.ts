@@ -13,9 +13,6 @@ export interface AuthRequest extends Request {
 }
 
 export interface IAuthRepository {
-    getUser(uniqueInput:Prisma.UserWhereUniqueInput): Promise<User | null>
-    createUser(data:Prisma.UserCreateInput):Promise<User>;
-    updateUser(where:Prisma.UserWhereUniqueInput, data:Prisma.UserUpdateInput):Promise<User>
     createRefreshToken(data: Prisma.RefreshTokenCreateInput):Promise<void>
     getRefreshToken(refreshToken: string): Promise<RefreshToken| null>;
     deleteRefreshToken(refreshToken: string): Promise<void>;
@@ -35,8 +32,8 @@ export interface IAuthService {
 }
 
 export const Types = {
-    IAuthRepository: Symbol("IAuthRepository"),
-    IAuthService: Symbol("IAuthService")
+    IAuthService: Symbol("IAuthService"),
+    IAuthRepository:Symbol("IAuthRepository")
 }
 
 export interface ISignInResponse{
