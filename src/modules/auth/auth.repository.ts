@@ -19,68 +19,24 @@ export default class AuthRepository implements IAuthRepository{
         return user;
     };
 
-    public async addUserProfile(userId:string, userData:Prisma.UserUpdateInput):Promise<User>{
-        const {name, age, gender, location } = userData;
+    public async updateUser(where:Prisma.UserWhereUniqueInput, data:Prisma.UserUpdateInput):Promise<User>{
         const updatedUser = await this.user.update({
-            where:{ id:userId},
-            data: {name, age, gender, location, activeStatus:true}
+            where,
+            data
         });
         return updatedUser;
     };
 
-    public async addVerificationToken(id:string, token:string):Promise<void>{
-        await this.user.update({
-            where: { id },
-            data:{
-                verificationToken: token
-            }
-        });
-    }
-
-
-    public async resetPassword(userId:string, newPassword:string):Promise<void>{
-        await this.user.update({
-            where: { id: userId},
-            data:{
-                password: newPassword
-            }
-        });
-    };
-
-    public async deleteVerificationToken(email:string):Promise<void>{
-        await this.user.update({
-            where: { email },
-            data:{
-                verificationToken: null
-            }
-        });
-    }
-
-    public async createUser(email:string, password:string):Promise<User>{
+    public async createUser(data:Prisma.UserCreateInput):Promise<User>{
         const user = await this.user.create({
-            data:{
-                email, password
-            }
+            data
         });
         return user;
     };
 
-    
-    public async verifyUser(userId:string):Promise<void>{
-        await this.user.update({
-            where:{id:userId},
-            data:{ verified: true }
-        });
-    };
-
-
-    public async createRefreshToken(refreshToken:string, expiresAt:Date, userId:string):Promise<void>{
+    public async createRefreshToken(data: Prisma.RefreshTokenCreateInput):Promise<void>{
         await this.refreshToken.create({
-           data:{
-               expiresAt,
-               token: refreshToken,
-               user: {connect: {id:userId }}
-           }
+           data
        });
     };
 
@@ -89,7 +45,6 @@ export default class AuthRepository implements IAuthRepository{
         const token = await this.refreshToken.findUnique({ where: {  token: refreshToken } });
         return token;
     };
-
 
     public async deleteRefreshToken(refreshToken:string):Promise<void>{
         await this.refreshToken.delete({ where: { token: refreshToken } });        

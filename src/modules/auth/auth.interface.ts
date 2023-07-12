@@ -12,21 +12,11 @@ export interface AuthRequest extends Request {
     payload?:jwtPayload
 }
 
-export interface ISignIn {
-    email: string
-    password:string
-}
-
-
 export interface IAuthRepository {
     getUser(uniqueInput:Prisma.UserWhereUniqueInput): Promise<User | null>
-    addUserProfile(userId: string, userData: Prisma.UserUpdateInput): Promise<User>;
-    resetPassword(userId: string, newPassword: string): Promise<void>;
-    createUser(email: string, password: string): Promise<User>;
-    addVerificationToken(id:string, token:string):Promise<void>
-    verifyUser(userId: string): Promise<void>;
-    deleteVerificationToken(email:string):Promise<void>;
-    createRefreshToken(refreshToken: string, expiresAt: Date, userId: string): Promise<void>;
+    createUser(data:Prisma.UserCreateInput):Promise<User>;
+    updateUser(where:Prisma.UserWhereUniqueInput, data:Prisma.UserUpdateInput):Promise<User>
+    createRefreshToken(data: Prisma.RefreshTokenCreateInput):Promise<void>
     getRefreshToken(refreshToken: string): Promise<RefreshToken| null>;
     deleteRefreshToken(refreshToken: string): Promise<void>;
 }
@@ -55,5 +45,6 @@ export interface ISignInResponse{
     onboardingStatus:boolean,
     verificationStatus:boolean,
 }
+
 export interface IToken extends Pick<ISignInResponse, "accessToken"|"refreshToken">{};
 export type UserProfile = Omit<User, 'password' | "verificationToken">;

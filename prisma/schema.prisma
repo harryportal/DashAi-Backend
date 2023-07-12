@@ -49,9 +49,9 @@ model Gift {
 
 model RefreshToken {
   id            String      @id @default(uuid())
-  distributorId String
+  userId String
   token         String      @unique
   createdAt     DateTime    @default(now())
   expiresAt     DateTime
-  user          User @relation(fields: [distributorId], references: [id])
+  user          User @relation(fields: [userId], references: [id])
 }

@@ -68,10 +68,11 @@ export class AuthService implements IAuthService{
     public async signUp(email:string, password:string):Promise<void>{
         let user = await this.authRepository.getUser({email});
         if(user){ throw new ConflictError("Email Already Exists. Please use another email Adress") }
-        const hashedpassword = await hashPassword(password);
-        user = await this.authRepository.createUser(email, hashedpassword);
+        password = await hashPassword(password);
+        user = await this.authRepository.createUser({email, password});
         const verificationToken = createVerificationToken(email, user.id);
-        await this.authRepository.addVerificationToken(user.id, verificationToken);
+        const id = user.id;
+        await this.authRepository.updateUser({id}, {verificationToken});
         await this.sendVerificationmail(email,verificationToken);
     }
 
@@ -84,13 +85,12 @@ export class AuthService implements IAuthService{
      */
     public async verifyEmail(verificationToken:string):Promise<void>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
-        const id = jwtPayload.id;
+        const {email, id } = jwtPayload;
         const user = await this.authRepository.getUser({id}) as User;
         if(!user || (user.verificationToken != verificationToken)){
             throw new UnAuthorizedError("Invalid or Expired Token!")
         }
-        await this.authRepository.deleteVerificationToken(jwtPayload.email);
-        await this.authRepository.verifyUser(jwtPayload.id);
+        await this.authRepository.updateUser({email}, {verificationToken:null, verified:true});
     }
 
     /**
@@ -124,8 +124,9 @@ export class AuthService implements IAuthService{
         const accessToken =  createAcessToken(user);
         const refreshToken = createRefreshToken(user);
         const refreshTokenTime = process.env.REFRESHTOKEN_TIME as unknown as number; // no of days
-        const refreshTokenExpiresAt = new Date(Date.now() + refreshTokenTime * 24 * 60 * 60 * 1000); 
-        await this.authRepository.createRefreshToken(refreshToken, refreshTokenExpiresAt, user.id)
+        const expiresAt = new Date(Date.now() + refreshTokenTime * 24 * 60 * 60 * 1000); 
+        const id = user.id;
+        await this.authRepository.createRefreshToken({token:refreshToken, expiresAt, user: {connect:{id}}})
         return {refreshToken, accessToken};
     }   
 
@@ -148,7 +149,7 @@ export class AuthService implements IAuthService{
         const user = await this.authRepository.getUser({id});
         if(!user){ throw new UnAuthorizedError("No user with Provided with Credentials") };
         if(!user.verified) { throw new ForbiddenError("Please verify your email address to Continue")}
-        let addedProfile = await this.authRepository.addUserProfile(id, profile);
+        let addedProfile = await this.authRepository.updateUser({id}, {...profile});
         const {password, verificationToken, ...newProfile} = addedProfile;
         return newProfile;
     }
@@ -163,9 +164,9 @@ export class AuthService implements IAuthService{
     public async getVerificationMail(email:string){
         const user = await this.authRepository.getUser({email}) as User;
         if(!user.verified){
-            await this.authRepository.deleteVerificationToken(email);
+            await this.authRepository.updateUser({email}, {verificationToken:null});
             const verificationToken = createVerificationToken(email ,user.id);
-            await this.authRepository.addVerificationToken(user.id, verificationToken);
+            await this.authRepository.updateUser({email}, {verificationToken});
             this.sendVerificationmail(email, verificationToken);
         }
     
@@ -186,8 +187,9 @@ export class AuthService implements IAuthService{
         if(jwtPayload.type != "reset"){  // This way, verification and access token can't be used to replace this
             throw new UnAuthorizedError("Invalid or expired Token");
         }
-        const hashedPassword = await hashPassword(password);
-        await this.authRepository.resetPassword(jwtPayload.id, hashedPassword);
+        const id = jwtPayload.id;
+        password = await hashPassword(password);
+        await this.authRepository.updateUser({id}, {password});
     }
 
     /**
