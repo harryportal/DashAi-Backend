@@ -32,7 +32,7 @@ model Wishlist {
   id String @id @default(uuid())
   name String
   description String?
-  shortId   String
+  shortId   String  @unique
   userId  String 
   user    User @relation(fields: [userId], references: [id])
   gifts Gift[]

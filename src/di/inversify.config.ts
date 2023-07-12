@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import {Container} from "inversify";
-import { AuthTypes, IAuthRepository, IAuthService } from "../modules/auth/auth.interface";
+import {Types as AuthTypes, IAuthRepository, IAuthService } from "../modules/auth/auth.interface";
+import { Types as WishlistTypes } from "../modules/wishlist/wishlist.interface";
 import AuthRepository from "../modules/auth/auth.repository";
 import { AuthService } from "../modules/auth/auth.service";
 import { IEmailQueue, IMailService, MailTypes } from "../modules/mail/mail.interface";

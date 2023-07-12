@@ -34,7 +34,7 @@ export interface IAuthService {
   forgotPassword(email: string): Promise<void>;
 }
 
-export const AuthTypes = {
+export const Types = {
     IAuthRepository: Symbol("IAuthRepository"),
     IAuthService: Symbol("IAuthService")
 }

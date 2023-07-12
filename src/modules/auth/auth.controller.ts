@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { AuthRequest, AuthTypes, IAuthService } from "./auth.interface";
+import { AuthRequest, Types, IAuthService } from "./auth.interface";
 import { Request, Response } from "express";
 import { User } from "@prisma/client";
 import { AddProfileDto } from "./auth.dtos";
@@ -7,8 +7,8 @@ import { AddProfileDto } from "./auth.dtos";
 @injectable()
 export class AuthController {
     private readonly authService:IAuthService;
-    constructor(@inject(AuthTypes.IAuthService)authService:IAuthService){
-        this.authService = authService;
+    constructor(@inject(Types.IAuthService)service:IAuthService){
+        this.authService = service;
     }
 
     public signUp = async(req:Request, res:Response)=>{

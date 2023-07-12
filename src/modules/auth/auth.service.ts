@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { BadRequestError, ConflictError, ForbiddenError, UnAuthorizedError } from "../../common/error";
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
-import { AuthTypes, IAuthRepository, IAuthService, ISignInResponse, IToken, UserProfile, jwtPayload } from "./auth.interface";
+import { Types, IAuthRepository, IAuthService, ISignInResponse, IToken, UserProfile, jwtPayload } from "./auth.interface";
 import { injectable, inject } from "inversify";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
@@ -13,10 +13,10 @@ import { AddProfileDto } from "./auth.dtos";
 export class AuthService implements IAuthService{
     private readonly authRepository: IAuthRepository;
     private readonly mailService: IEmailQueue;
-    constructor(@inject(AuthTypes.IAuthRepository)authRepository:IAuthRepository,
-    @inject(MailTypes.IEmailQueue)mailService:IEmailQueue){
-        this.authRepository = authRepository;
-        this.mailService = mailService;
+    constructor(@inject(Types.IAuthRepository)repository:IAuthRepository,
+    @inject(MailTypes.IEmailQueue)service:IEmailQueue){
+        this.authRepository = repository;
+        this.mailService = service;
     }
 
     /**
