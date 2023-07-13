@@ -1,13 +1,12 @@
 import { User } from "@prisma/client";
-import { BadRequestError, ConflictError, ForbiddenError, UnAuthorizedError } from "../../common/error";
+import { BadRequestError, ConflictError, UnAuthorizedError } from "../../common/error";
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
-import { Types, IAuthRepository, IAuthService, ISignInResponse, IToken, UserProfile, jwtPayload } from "./auth.interface";
+import { Types, IAuthRepository, IAuthService, ISignInResponse, IToken,jwtPayload } from "./auth.interface";
 import { injectable, inject } from "inversify";
 import { IUserRepository, Types as UserTypes } from "../user/user.interface";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
 import { IEmailQueue, MailTypes } from "../mail/mail.interface";
-import { AddProfileDto } from "./auth.dtos";
 
 
 @injectable()
@@ -132,23 +131,6 @@ export class AuthService implements IAuthService{
         const onboardingStatus = user.activeStatus;
         const verificationStatus = user.verified;
         return {accessToken, refreshToken, onboardingStatus, verificationStatus};
-    }
-
-    /**
-     * Verifies that a user with the id exists.
-     * Verifies that the user's email address has been verified.
-     * Adds and return the newly added profile.
-     * @param profile 
-     * @param id 
-     * @returns the newly added profile
-     */
-    public async addProfile(profile:AddProfileDto, id:string):Promise<UserProfile>{
-        const user = await this.userRepository.getUser({id});
-        if(!user){ throw new UnAuthorizedError("No user with Provided with Credentials") };
-        if(!user.verified) { throw new ForbiddenError("Please verify your email address to Continue")}
-        let addedProfile = await this.userRepository.updateUser({id}, {...profile});
-        const {password, verificationToken, ...newProfile} = addedProfile;
-        return newProfile;
     }
 
     /**

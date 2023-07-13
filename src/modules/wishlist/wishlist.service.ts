@@ -32,8 +32,13 @@ export class WishlistService implements IWishlistService{
      * @param id 
      * @param shortId  
      */
-    async getWishlist(id:string | undefined, shortId:string | undefined):Promise<Wishlist | null>{
-        const wishlist = this.wishlistRepository.getWishlist({id, shortId});
+    async getWishlist(id:string, includeUser?:boolean ):Promise<Wishlist | null>{
+        let wishlist;
+        if(includeUser){
+            wishlist = await this.wishlistRepository.getWishlist({shortId:id}, {user:{select: {name:true}}})
+        }else{
+            wishlist = await this.wishlistRepository.getWishlist({id});
+        }
         return wishlist;
     }
 

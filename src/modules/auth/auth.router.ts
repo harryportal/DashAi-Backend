@@ -3,7 +3,7 @@ import container from "../../di/inversify.config";
 import { AuthController } from "./auth.controller";
 import {Router} from "express";
 import "express-async-errors";
-import { AddProfileDto, ForgotPasswordDto, ResetPasswordDto, SignInDto, SignUpDto } from "./auth.dtos";
+import { ForgotPasswordDto, ResetPasswordDto, SignInDto, SignUpDto } from "./auth.dtos";
 import { protect } from "../../common/auth";
 import passport from "passport";
 import "../../common/passport"
@@ -14,7 +14,6 @@ export const router = Router();
 
 router.post("/signup", RequestValidator.validate(SignUpDto), authController.signUp)
 router.post("/signin", RequestValidator.validate(SignInDto), authController.signIn)
-router.post("/profile", RequestValidator.validate(AddProfileDto), authController.addProfile)
 router.post("/logout", protect, authController.logout)
 router.post("/forgot-password", RequestValidator.validate(ForgotPasswordDto), authController.forgotPassword)
 router.post("/reset-password", RequestValidator.validate(ResetPasswordDto), authController.resetPassword)

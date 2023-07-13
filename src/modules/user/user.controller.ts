@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import { IUserService, Types } from "./user.interface";
 import { AuthRequest } from "../auth/auth.interface";
 import { Response } from "express";
+import { AddProfileDto } from "./user.dtos";
 
 @injectable()
 export default class UserController {
@@ -12,4 +13,12 @@ export default class UserController {
         const wishlists = await this.userService.getUserWishlist(id);
         return res.status(200).json({success:true, data:wishlists});
     }
+
+    onBoardUser = async(req:AuthRequest, res:Response)=>{
+        const id = req.payload!.id;
+        const userData = req.body as AddProfileDto;
+        const profile = await this.userService.addProfile(userData, id);
+        return res.status(200).json({success:true, data:profile})
+    }
+    
 }

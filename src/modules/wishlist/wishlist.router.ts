@@ -10,3 +10,5 @@ export const router = Router();
 const wishlistController = container.resolve<WishlistController>(WishlistController);
 
 router.post("/", protect(true), RequestValidator.validate(AddWishlistDto), wishlistController.createWishlist)
+router.get("/:id", protect(true), wishlistController.getWishlist);
+router.get("/share/:id", wishlistController.getWishlistwithUser)

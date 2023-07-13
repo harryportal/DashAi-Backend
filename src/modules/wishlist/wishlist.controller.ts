@@ -17,6 +17,19 @@ export class WishlistController {
     }
 
     getWishlist = async(req:AuthRequest, res:Response)=>{
-
+        const id = req.params.id;
+        const wishlist = await this.wishlistService.getWishlist(id);
+        return res.status(200).json({success:true, data:wishlist});
     }
+
+    getWishlistwithUser = async(req:AuthRequest, res:Response)=>{
+        const shortId = req.params.id;
+        console.log(shortId)
+        const wishlist = await this.wishlistService.getWishlist(shortId, true);
+        return res.status(200).json({success:true, data:wishlist})
+    }
+
+
+
+
 }

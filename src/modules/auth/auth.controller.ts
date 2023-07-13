@@ -2,7 +2,6 @@ import { inject, injectable } from "inversify";
 import { AuthRequest, Types, IAuthService } from "./auth.interface";
 import { Request, Response } from "express";
 import { User } from "@prisma/client";
-import { AddProfileDto } from "./auth.dtos";
 
 @injectable()
 export class AuthController {
@@ -24,13 +23,6 @@ export class AuthController {
         const user = req.user as User;
         const response = await this.authService.googleSignOn(user);
         res.status(200).json({success:true, data:response}) // change implementation to redirect to frontend url
-    }
-
-    public addProfile = async(req:AuthRequest, res:Response)=>{
-        const profileData = req.body as AddProfileDto;
-        const userId = req.payload!.id;
-        const updatedProfile = await this.authService.addProfile(profileData, userId);
-        return res.status(200).json({success:true, data:updatedProfile})
     }
 
     public getVerficiationMail = async(req:AuthRequest, res:Response)=>{

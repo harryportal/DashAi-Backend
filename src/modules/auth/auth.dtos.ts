@@ -22,25 +22,6 @@ export class SignInDto extends ForgotPasswordDto{
     password:string;
 }
 
-export class AddProfileDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
-  
-    @IsNumber()
-    @Min(1)
-    @Max(150)
-    age: number;
-  
-    @IsString()
-    @IsNotEmpty()
-    location: string;
-  
-    @IsString()
-    @IsIn(['male', 'female', 'other'])
-    gender: string;
-}
-
 export class ResetPasswordDto{
     @IsString()
     token:string;

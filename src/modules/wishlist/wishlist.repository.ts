@@ -9,10 +9,11 @@ export class WishlistRepository implements IWishlistRepository{
         this.wishlist = prisma.wishlist;
     }
 
-    async getWishlist(uniqueInput:Prisma.WishlistWhereUniqueInput):Promise<Wishlist | null>{
+    async getWishlist(where:Prisma.WishlistWhereUniqueInput, include?:Prisma.WishlistInclude):Promise<Wishlist | null>{
         const wishlist = await this.wishlist.findUnique({
-            where: uniqueInput
+            where, include
         })
+        console.log(wishlist);
         return wishlist;
     }
 

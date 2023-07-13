@@ -1,4 +1,4 @@
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class AddWishlistDto {
     @IsString()
@@ -6,4 +6,14 @@ export class AddWishlistDto {
 
     @IsString()
     description:string
+}
+
+export class GetWishlistDto{
+    @IsString()
+    @IsOptional()
+    id:string;
+    
+    @IsString()
+    @IsOptional()
+    shortId:string;
 }
