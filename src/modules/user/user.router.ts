@@ -7,5 +7,4 @@ const userController = container.resolve<UserController>(UserController)
 export const router = Router();
 
 router.get("/wishlists", protect(true), userController.getUserWishlist);
-
-
+router.post("/", protect(true), userController.onBoardUser)

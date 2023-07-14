@@ -29,8 +29,7 @@ export class UserService implements IUserService {
     public async addProfile(profile:AddProfileDto, id:string):Promise<UserProfile>{
         const user = await this.userRepository.getUser({id});
         if(!user){ throw new UnAuthorizedError("No user with Provided with Credentials") };
-        if(!user.verified) { throw new ForbiddenError("Please verify your email address to Continue")}
-        let addedProfile = await this.userRepository.updateUser({id}, {...profile});
+        let addedProfile = await this.userRepository.updateUser({id}, {...profile, activeStatus:true});
         const {password, verificationToken, ...newProfile} = addedProfile;
         return newProfile;
     }
