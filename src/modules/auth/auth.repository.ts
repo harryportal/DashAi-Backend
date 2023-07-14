@@ -15,8 +15,7 @@ export default class AuthRepository implements IAuthRepository{
            data
        });
     };
-
-
+    
     public async getRefreshToken(refreshToken:string):Promise<RefreshToken | null>{
         const token = await this.refreshToken.findUnique({ where: {  token: refreshToken } });
         return token;

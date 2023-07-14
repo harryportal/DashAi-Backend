@@ -197,11 +197,10 @@ export class AuthService implements IAuthService{
         this.verifyJwtandThrow(refreshToken) as jwtPayload;
         const token = await this.authRepository.getRefreshToken(refreshToken); 
         if(token){
-            await this.authRepository.deleteRefreshToken(refreshToken);
+            return await this.authRepository.deleteRefreshToken(refreshToken);
         }else{
             throw new UnAuthorizedError("Invalid or Expired Token");
         }
-        
     }
 
     /**

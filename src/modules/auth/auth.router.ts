@@ -14,7 +14,7 @@ export const router = Router();
 
 router.post("/signup", RequestValidator.validate(SignUpDto), authController.signUp)
 router.post("/signin", RequestValidator.validate(SignInDto), authController.signIn)
-router.post("/logout", protect, authController.logout)
+router.post("/logout", protect(), authController.logout)
 router.post("/forgot-password", RequestValidator.validate(ForgotPasswordDto), authController.forgotPassword)
 router.post("/reset-password", RequestValidator.validate(ResetPasswordDto), authController.resetPassword)
 router.get("/verification", protect(), authController.getVerficiationMail)
