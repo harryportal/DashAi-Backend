@@ -1,32 +1,45 @@
-import { Prisma, PrismaClient, User, Wishlist } from "@prisma/client";
+import { Prisma, PrismaClient, Profile, User, Wishlist } from "@prisma/client";
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "./user.interface";
+import { IUserRepository, UserwithProfile } from "./user.interface";
+import { GetResult } from "@prisma/client/runtime";
 
 
 @injectable()
 export class UserRepository implements IUserRepository{
-    private readonly user;
-    constructor(@inject(PrismaClient)prisma:PrismaClient){
-        this.user = prisma.user;
-    }
+    constructor(@inject(PrismaClient)private readonly prisma:PrismaClient){}
     
-    async getUser(uniqueInput:Prisma.UserWhereUniqueInput):Promise<User | null>{
-        const user = await this.user.findUnique({
-            where: uniqueInput
+    async getUser(uniqueInput:Prisma.UserWhereUniqueInput, include?:Prisma.UserInclude)
+    :Promise<User | UserwithProfile | null>{
+        const user = await this.prisma.user.findUnique({
+            where: uniqueInput, include
         });
         return user;
     };
 
-    async updateUser(where:Prisma.UserWhereUniqueInput, data:Prisma.UserUpdateInput):Promise<User>{
-        const updatedUser = await this.user.update({
+    async updateUser(where: Prisma.UserWhereUniqueInput, data: Prisma.UserUpdateInput):Promise<User>{
+         const user = await this.prisma.user.update({
+            where, data
+        });
+        return user;
+    }
+
+    async updateProfile(where:Prisma.ProfileWhereUniqueInput, data:Prisma.ProfileUpdateInput):Promise<Profile>{
+        const updatedUser = await this.prisma.profile.update({
             where,
             data
         });
         return updatedUser;
     };
 
+    async addProfile(data:Prisma.ProfileCreateInput):Promise<Profile>{
+        const profile = await this.prisma.profile.create({
+            data
+        });
+        return profile;
+    }
+
     async getUserWishlist(where:Prisma.UserWhereUniqueInput):Promise<Wishlist[] | null>{
-        const userwithWishlist = await this.user.findUnique({
+        const userwithWishlist = await this.prisma.user.findUnique({
             where, select:{
                 wishlists: true
             }
@@ -35,7 +48,7 @@ export class UserRepository implements IUserRepository{
     }
 
     public async createUser(data:Prisma.UserCreateInput):Promise<User>{
-        const user = await this.user.create({
+        const user = await this.prisma.user.create({
             data
         });
         return user;

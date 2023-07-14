@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import { AuthRequest, Types, IAuthService } from "./auth.interface";
 import { Request, Response } from "express";
 import { User } from "@prisma/client";
+import { UserwithProfile } from "../user/user.interface";
 
 @injectable()
 export class AuthController {
@@ -20,7 +21,7 @@ export class AuthController {
     }
 
     public googleSignOn = async(req:Request, res:Response)=>{
-        const user = req.user as User;
+        const user = req.user as UserwithProfile;
         const response = await this.authService.googleSignOn(user);
         res.status(200).json({success:true, data:response}) // change implementation to redirect to frontend url
     }

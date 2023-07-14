@@ -3,7 +3,7 @@ import { BadRequestError, ConflictError, UnAuthorizedError } from "../../common/
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
 import { Types, IAuthRepository, IAuthService, ISignInResponse, IToken,jwtPayload } from "./auth.interface";
 import { injectable, inject } from "inversify";
-import { IUserRepository, Types as UserTypes } from "../user/user.interface";
+import { IUserRepository, Types as UserTypes, UserwithProfile } from "../user/user.interface";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
 import { IEmailQueue, MailTypes } from "../mail/mail.interface";
@@ -99,13 +99,13 @@ export class AuthService implements IAuthService{
      */
     public async signIn(email:string, password:string):Promise<ISignInResponse>{
         email = email.toLowerCase();
-        const user = await this.userRepository.getUser({email});
+        const user = await this.userRepository.getUser({email}, {profile:true}) as UserwithProfile
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
         const checkPassword = await comparePassword(password, user.password!)
         if(!checkPassword) { throw new UnAuthorizedError("Invalid Login Credentials") }
         const {refreshToken, accessToken} = await this.generateToken(user);
-        const onboardingStatus = user.activeStatus;
+        const onboardingStatus = user.profile ? true: false;
         const verificationStatus = user.verified;
         return {accessToken, refreshToken, onboardingStatus, verificationStatus};
     }
@@ -126,9 +126,9 @@ export class AuthService implements IAuthService{
         return {refreshToken, accessToken};
     }   
 
-    public async googleSignOn(user:User):Promise<ISignInResponse>{
+    public async googleSignOn(user:UserwithProfile):Promise<ISignInResponse>{
         const  {accessToken, refreshToken} = await this.generateToken(user);
-        const onboardingStatus = user.activeStatus;
+        const onboardingStatus = user.profile ? true: false;
         const verificationStatus = user.verified;
         return {accessToken, refreshToken, onboardingStatus, verificationStatus};
     }
@@ -213,12 +213,12 @@ export class AuthService implements IAuthService{
      */
     public async forgotPassword(email:string){
         email = email.toLowerCase();
-        const user = await this.userRepository.getUser({email}) as User;
+        const user = await this.userRepository.getUser({email}) as UserwithProfile
         if(!user) { throw new BadRequestError("No User with Email Address!") }
         const userToken = createResetToken(user.email, user.id)
 
         //the user might have no name since they should be able to reset password without onbaording
-        let name:string = user.name ??  "";  
+        let name:string = user.profile?.name ??  "";  
         await this.sendResetPasswordmail(userToken, email, name);    
     }
 }
