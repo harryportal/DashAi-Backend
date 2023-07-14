@@ -4,6 +4,7 @@ import { AddProfileDto } from "./user.dtos";
 export interface IUserRepository {
     getUser(uniqueInput:Prisma.UserWhereUniqueInput, include?:Prisma.UserInclude): Promise<User | UserwithProfile | null>
     createUser(data:Prisma.UserCreateInput):Promise<User>;
+    addProfile(data:Prisma.ProfileCreateInput):Promise<Profile>
     updateProfile(where:Prisma.ProfileWhereUniqueInput, data:Prisma.ProfileUpdateInput):Promise<Profile>
     updateUser(where:Prisma.UserWhereUniqueInput, data:Prisma.UserUpdateInput):Promise<User>
     getUserWishlist(where:Prisma.UserWhereUniqueInput):Promise<Wishlist[] | null>
