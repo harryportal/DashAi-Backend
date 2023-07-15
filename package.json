@@ -16,6 +16,9 @@
     "test": "dotenv -e .env.test npx jest --watchAll",
     "migrate:test": "dotenv -e .env.test prisma migrate dev"
   },
+  "prisma": {
+    "schema": "src/database/schema.prisma"
+  },
   "dependencies": {
     "@prisma/client": "^4.16.1",
     "bcrypt": "^5.1.0",
