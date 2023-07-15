@@ -1,8 +1,10 @@
 import { PrismaClient } from "@prisma/client"
-import logger from '../logging/winston';
+import logger from '../utils/logging/winston';
 
-// creates and return a reusable prisma client
 
+/**
+ * Creates and return a reusable prisma client
+ */
 class Prisma{
     public prisma = new PrismaClient();
     async connectDB(){

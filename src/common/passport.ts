@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { UnAuthorizedError } from "./error";
-import { prisma } from "../utils/db/prisma";
+import { prisma } from "../database/prisma.service";
 import { User } from "@prisma/client";
 
 

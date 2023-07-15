@@ -1,5 +1,5 @@
-import logger from "../../../logging/winston"
-import { prisma } from "../../prisma"
+import logger from "../../../utils/logging/winston"
+import { prisma } from "../../prisma.service"
 import { tags } from "./seedtag-json"
 
 const createTag = async()=>{

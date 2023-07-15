@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { ForbiddenError, UnAuthorizedError } from './error';
 import { verifyJWT } from '../utils/jwtAuth/jwt';
-import { prisma } from '../utils/db/prisma';
+import { prisma } from '../database/prisma.service';
 import { AuthRequest } from '../modules/auth/auth.interface';
 
 

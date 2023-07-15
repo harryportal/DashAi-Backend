@@ -1,6 +1,6 @@
 import { curatedgiftsJson } from "./seedcuratedgifts-json";
-import { prisma } from "../../prisma";
-import logger from "../../../logging/winston";
+import { prisma } from "../../prisma.service";
+import logger from "../../../utils/logging/winston";
 
 const addGifts = async()=>{
     for(const gift of curatedgiftsJson){
