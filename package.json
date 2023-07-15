@@ -10,6 +10,7 @@
     "reset:prod": "prisma migrate reset --force",
     "start": "node dist/index.js",
     "dev": " dotenv -e .env.development nodemon src/index.ts",
+    "prisma-studio":"dotenv -e .env.development prisma studio",
     "migrate:dev": "dotenv -e .env.development prisma migrate dev",
     "reset": "dotenv -e .env.development prisma migrate reset",
     "test": "dotenv -e .env.test npx jest --watchAll",
