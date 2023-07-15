@@ -46,10 +46,11 @@ model Wishlist {
 
 model Gift {
   id String @id @default(uuid())
+  name  String  @db.VarChar(30)
   description String  @db.VarChar(255)
   price Decimal
-  giftUrl String // references the url of the gift(the external api url of the gift)
-  purchased Boolean
+  giftId  String // references the id of the gift from the external Api
+  imageUrl String // references the image url of the gifts
   wishlistId  String
   tags  Tag[]  @relation("giftTags")
   wishlists Wishlist[] @relation("wishlistToGift")
