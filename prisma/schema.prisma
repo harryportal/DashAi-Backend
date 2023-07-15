@@ -13,8 +13,8 @@ datasource db {
 
 model User {
   id String @id @default(uuid())
-  email String @unique
-  password String?
+  email String @unique @db.VarChar(30)
+  password String?  @db.VarChar(30)
   profile Profile?
   googleSignOn Boolean @default(false)
   verified Boolean @default(false)
@@ -24,33 +24,49 @@ model User {
   refreshTokens    RefreshToken[]
 }
 
-model Profile{
+model Profile {
   id String @id @default(uuid())
-  name String
+  name String @db.VarChar(30)
   age Int
-  gender String
-  location String
+  gender String 
+  location String @db.VarChar()
   userId  String @unique
   user    User @relation(fields: [userId], references: [id])
 }
 
 model Wishlist {
   id String @id @default(uuid())
-  name String
+  name String @db.VarChar(30)
   description String?
   shortId   String  @unique
   userId  String 
-  user    User @relation(fields: [userId], references: [id])
-  gifts Gift[]
+  user   User @relation(fields: [userId], references: [id])
+  gifts Gift[]  @relation("wishlistToGift")
 }
 
 model Gift {
   id String @id @default(uuid())
-  description String
+  description String  @db.VarChar(255)
+  price Decimal
   giftUrl String // references the url of the gift(the external api url of the gift)
   purchased Boolean
   wishlistId  String
-  wishlist Wishlist @relation(fields: [wishlistId], references: [id])
+  tags  Tag[]  @relation("giftTags")
+  wishlists Wishlist[] @relation("wishlistToGift")
+  curatedLists  CuratedGift[] @relation("curatedGifts")
+}
+
+model CuratedGift {
+  id String @id @default(uuid())
+  title String @db.VarChar(30)
+  description String @db.VarChar(255)
+  gift Gift[] @relation("curatedGifts")
+}
+
+model Tag {
+  id String @id @default(uuid())
+  name String @db.VarChar(30)
+  gifts Gift[] @relation("giftTags")
 }
 
 model RefreshToken {
