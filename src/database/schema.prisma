@@ -53,14 +53,14 @@ model Gift {
   imageUrl String // references the image url of the gifts
   tags  Tag[] 
   wishlists Wishlist[] 
-  curatedgifts  CuratedGift[] 
+  curatedgifts  CuratedGifts[] 
 }
 
-model CuratedGift {
+model CuratedGifts {
   id String @id @default(uuid())
   title String @db.VarChar(255)
   description String @db.VarChar(255)
-  gift Gift[] 
+  gifts Gift[] 
 }
 
 model Tag {

@@ -1,6 +1,6 @@
-import { CuratedGift } from "@prisma/client";
+import { CuratedGifts } from "@prisma/client";
 
-export const curatedgiftsJson:CuratedGift[] = [{
+export const curatedgiftsJson:CuratedGifts[] = [{
     "id": "9f99dbf4-8f53-48a7-b7df-1a31562ab84a",
     "title": "Virtual Mindfulness Journey",
     "description": "Embark on a virtual mindfulness journey and discover inner peace with this curated gift package."

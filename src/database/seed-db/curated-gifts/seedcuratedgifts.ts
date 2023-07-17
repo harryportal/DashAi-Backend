@@ -4,7 +4,7 @@ import logger from "../../../utils/logging/winston";
 
 const addGifts = async()=>{
     for(const gift of curatedgiftsJson){
-        await prisma.curatedGift.create({
+        await prisma.curatedGifts.create({
             data:gift
         })
     }

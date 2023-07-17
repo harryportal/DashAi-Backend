@@ -12,10 +12,14 @@ import { UserRepository } from "../modules/user/user.repository";
 import { UserService } from "../modules/user/user.service";
 import { WishlistRepository } from "../modules/wishlist/wishlist.repository";
 import { WishlistService } from "../modules/wishlist/wishlist.service";
+import { ICuratedGiftsRepository, Types as CuratedGiftsTypes, ICuratedGiftsService } from "../modules/curated-gifts/curated-gifts.interface";
+import CuratedGiftRepository from "../modules/curated-gifts/curated-gifts.repository";
+import { CuratedGiftsService } from "../modules/curated-gifts/curated-gifts.service";
 
 const container = new Container();
 
-
+container.bind<ICuratedGiftsRepository>(CuratedGiftsTypes.ICuratedGiftsRepository).to(CuratedGiftRepository)
+container.bind<ICuratedGiftsService>(CuratedGiftsTypes.ICuratedGiftsService).to(CuratedGiftsService)
 container.bind(PrismaClient).toConstantValue(new PrismaClient());
 container.bind<IAuthRepository>(AuthTypes.IAuthRepository).to(AuthRepository);
 container.bind<IAuthService>(AuthTypes.IAuthService).to(AuthService);
