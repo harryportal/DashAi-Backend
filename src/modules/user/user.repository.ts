@@ -1,7 +1,6 @@
 import { Prisma, PrismaClient, Profile, User, Wishlist } from "@prisma/client";
 import { inject, injectable } from "inversify";
 import { IUserRepository, UserwithProfile } from "./user.interface";
-import { GetResult } from "@prisma/client/runtime";
 
 
 @injectable()

@@ -5,24 +5,21 @@ import { IAuthRepository } from "./auth.interface";
 
 @injectable()
 export default class AuthRepository implements IAuthRepository{
-    private readonly refreshToken;
-    constructor(@inject(PrismaClient)prisma:PrismaClient){
-        this.refreshToken = prisma.refreshToken;
-    }
+    constructor(@inject(PrismaClient)private readonly prisma:PrismaClient){}
 
     public async createRefreshToken(data: Prisma.RefreshTokenCreateInput):Promise<void>{
-        await this.refreshToken.create({
+        await this.prisma.refreshToken.create({
            data
        });
     };
     
     public async getRefreshToken(refreshToken:string):Promise<RefreshToken | null>{
-        const token = await this.refreshToken.findUnique({ where: {  token: refreshToken } });
+        const token = await this.prisma.refreshToken.findUnique({ where: {  token: refreshToken } });
         return token;
     };
 
     public async deleteRefreshToken(refreshToken:string):Promise<void>{
-        await this.refreshToken.delete({ where: { token: refreshToken } });        
+        await this.prisma.refreshToken.delete({ where: { token: refreshToken } });        
     };
     
 }
