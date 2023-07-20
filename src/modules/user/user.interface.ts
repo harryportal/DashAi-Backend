@@ -12,7 +12,8 @@ export interface IUserRepository {
 
 export interface IUserService {
     getUserWishlist(id:string):Promise<Wishlist[] | null>;
-    addProfile(profile:AddProfileDto, id:string):Promise<Profile>
+    addProfile(profile:AddProfileDto, id:string):Promise<Profile>;
+    getUserorThrow(userId:string):Promise<UserwithProfile>
 }
 
 

@@ -15,6 +15,9 @@ import { WishlistService } from "../modules/wishlist/wishlist.service";
 import { ICuratedGiftsRepository, Types as CuratedGiftsTypes, ICuratedGiftsService } from "../modules/curated-gifts/curated-gifts.interface";
 import CuratedGiftRepository from "../modules/curated-gifts/curated-gifts.repository";
 import { CuratedGiftsService } from "../modules/curated-gifts/curated-gifts.service";
+import { Types as GiftTypes, IGiftRepository, IGiftService } from "../modules/gifts/gift.interface";
+import GiftService from "../modules/gifts/gift.service";
+import GiftRepository from "../modules/gifts/gift.repository";
 
 const container = new Container();
 
@@ -29,5 +32,7 @@ container.bind<IMailService>(MailTypes.IMailService).to(MailService);
 container.bind<IUserService>(UserTypes.IUserService).to(UserService)
 container.bind<IWishlistRepository>(WishlistTypes.IWishlistRepository).to(WishlistRepository);
 container.bind<IWishlistService>(WishlistTypes.IWishlistService).to(WishlistService);
+container.bind<IGiftRepository>(GiftTypes.IGiftRepository).to(GiftRepository);
+container.bind<IGiftService>(GiftTypes.IGiftService).to(GiftService);
 
 export default container;
