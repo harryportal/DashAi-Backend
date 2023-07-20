@@ -8,6 +8,6 @@ import { SendGiftsDto } from "./gift.dtos";
 
 
 const giftController = container.resolve<GiftController>(GiftController)
-const router = Router();
+export const router = Router();
 
-router.post("/send-gifts/:id", protect(true), RequestValidator.validate(SendGiftsDto), giftController.sendGift)
+router.post("/send/:id", protect(true), RequestValidator.validate(SendGiftsDto), giftController.sendGift)

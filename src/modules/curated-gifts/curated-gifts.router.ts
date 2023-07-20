@@ -7,5 +7,5 @@ const curatedGiftsController = container.resolve<CuratedGiftsController>(Curated
 
 export const router = Router();
 
-router.get("", curatedGiftsController.getAllCuratedGifts);
-router.get("/:id", curatedGiftsController.getCuratedGifts);
+router.get("", protect(true), curatedGiftsController.getAllCuratedGifts);
+router.get("/:id",protect(true), curatedGiftsController.getCuratedGifts);

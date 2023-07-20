@@ -6,6 +6,7 @@ import session from "express-session"
 import passport from "passport";
 import { ErrorHandler } from './common/error';
 import { Application } from 'express';
+import { router as GiftRouter } from "./modules/gifts/gift.router";
 import { router as curatedGiftsRouter } from "./modules/curated-gifts/curated-gifts.router";
 import {router as authRouter} from "./modules/auth/auth.router";
 import {router as userRouter} from "./modules/user/user.router";
@@ -36,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/wishlist", wishlistRouter)
+app.use("/api/v1/gifts", GiftRouter);
 app.use("/api/v1/curated-gifts", curatedGiftsRouter);
 
 

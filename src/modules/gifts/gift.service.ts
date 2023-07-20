@@ -27,6 +27,11 @@ export default class GiftService {
         const giftUrl = `${process.env.FRONTENDURL}/claim-gift/`;
         const user = await this.userService.getUserorThrow(userId);
         const {recipientEmail, recipientName, message} = data;
+
+        if(user.email == recipientEmail){
+            throw new BadRequestError("This is not how you send gifts to yourself😃")
+        }
+
         const sendgiftTemplate = sendGiftTemplate(giftUrl, user.profile!.name,message, recipientName)
         await this.mailService.addEmailToQueue({to:recipientEmail, subject: "You've been dashed a new Gift", html:sendgiftTemplate})
     }
