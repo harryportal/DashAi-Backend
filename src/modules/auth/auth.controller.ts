@@ -1,7 +1,6 @@
 import { inject, injectable } from "inversify";
 import { AuthRequest, Types, IAuthService } from "./auth.interface";
 import { Request, Response } from "express";
-import { User } from "@prisma/client";
 import { UserwithProfile } from "../user/user.interface";
 
 @injectable()
