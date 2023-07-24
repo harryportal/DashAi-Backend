@@ -17,6 +17,7 @@ router.post("/signin", RequestValidator.validate(SignInDto), authController.sign
 router.post("/logout", protect(), authController.logout)
 router.post("/forgot-password", RequestValidator.validate(ForgotPasswordDto), authController.forgotPassword)
 router.post("/reset-password", RequestValidator.validate(ResetPasswordDto), authController.resetPassword)
+router.get("/access-token", authController.getAccessToken)
 router.get("/verification", protect(), authController.getVerficiationMail)
 router.post("/verification", authController.verifyEmail);
 router.get("/google", passport.authenticate("google", {scope: ["profile", "email"] }))

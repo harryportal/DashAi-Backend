@@ -49,6 +49,12 @@ export class AuthController {
         return res.status(200).json({success:true, message:"Your password has been successfully reset!"})
     }
 
+    public getAccessToken = async(req:Request, res:Response)=>{
+        const refreshToken = req.query.token as string;
+        const accessToken = await this.authService.getAccessToken(refreshToken);
+        return res.json({success:true, data: {accessToken}})
+    }
+
     public verifyEmail = async(req:Request, res:Response)=>{
         const token = req.query.token as string;
         await this.authService.verifyEmail(token)
