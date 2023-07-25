@@ -1,4 +1,4 @@
-export const completeprofileTemplate = (link:string)=>{
+export const completeprofileTemplate = (link:string, name:string)=>{
     return `<!DOCTYPE html>
 	<html>
 	<head>
@@ -51,7 +51,7 @@ export const completeprofileTemplate = (link:string)=>{
 	</head>
 	<body>
 		<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-		<p>Hi</p>
+		<p>Hi ${name}</p>
 		<p>Thank you for creating an account on our Gift as a Service Platform
 		We'd like to remind you to complete your profile by first verifiying your email address. 
 		This will help us better tailor our services to meet your needs.</p>

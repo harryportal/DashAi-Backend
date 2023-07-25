@@ -1,5 +1,6 @@
 import { Prisma, RefreshToken, User } from "@prisma/client";
 import { Request } from "express";
+import { SignUpDto } from "./auth.dtos";
 
 export interface jwtPayload{
     id: string;
@@ -18,7 +19,7 @@ export interface IAuthRepository {
 }
 
 export interface IAuthService {
-  signUp(email: string, password: string): Promise<void>;
+  signUp(userInfo:SignUpDto): Promise<void>;
   verifyEmail(verificationToken: string): Promise<void>;
   signIn(email: string, password: string): Promise<ISignInResponse>;
   getVerificationMail(email: string): Promise<void>;

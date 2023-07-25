@@ -28,9 +28,4 @@ export class WishlistController {
         const wishlist = await this.wishlistService.getWishlist(shortId, true);
         return res.status(200).json({success:true, data:wishlist})
     }
-    
-
-
-
-
 }

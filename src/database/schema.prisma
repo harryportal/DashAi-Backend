@@ -14,6 +14,8 @@ datasource db {
 model User {
   id String @id @default(uuid())
   email String @unique @db.VarChar(255)
+  firstName String 
+  lastName String 
   password String?  @db.VarChar(255)
   profile Profile?
   googleSignOn Boolean @default(false)
@@ -26,8 +28,7 @@ model User {
 
 model Profile {
   id String @id @default(uuid())
-  name String @db.VarChar(255)
-  age Int
+  username String
   gender String 
   location String @db.VarChar()
   userId  String @unique

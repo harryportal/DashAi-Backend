@@ -17,7 +17,7 @@ export class WishlistService implements IWishlistService{
         const shortId = this.generateShortId();
         await this.wishlistRepository.addWishlist({name, shortId, description, user: {connect:{id}}})
     }
-
+ 
     /**
      * generates a short Id to be used for sharing the wishlist to friends and family
      * @returns shortId

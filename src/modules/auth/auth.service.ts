@@ -7,6 +7,7 @@ import { IUserRepository, Types as UserTypes, UserwithProfile } from "../user/us
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
 import { IEmailQueue, MailTypes } from "../mail/mail.interface";
+import { SignUpDto } from "./auth.dtos";
 
 
 @injectable()
@@ -33,9 +34,9 @@ export class AuthService implements IAuthService{
      * @param email 
      * @param verificationToken - verify email jwt token
      */
-    private async sendVerificationmail(email:string,verificationToken:string):Promise<void>{
+    private async sendVerificationmail(email:string,verificationToken:string, name:string):Promise<void>{
         const verifyEmailUrl = `${process.env.FRONTENDURL}/${verificationToken}`;
-        const mailtemplate = completeprofileTemplate(verifyEmailUrl);
+        const mailtemplate = completeprofileTemplate(verifyEmailUrl,name);
         await this.mailService.addEmailToQueue({to:email, subject: "Verify Your Email Address", html:mailtemplate})
     }
     
@@ -61,15 +62,16 @@ export class AuthService implements IAuthService{
      * @param email 
      * @param password 
      */
-    public async signUp(email:string, password:string):Promise<void>{
+    public async signUp(userInfo:SignUpDto):Promise<void>{
+        let {email, firstName, lastName, password } = userInfo;
         let user = await this.userRepository.getUser({email});
         if(user){ throw new ConflictError("Email Already Exists. Please use another email Adress") }
         password = await hashPassword(password);
-        user = await this.userRepository.createUser({email, password});
+        user = await this.userRepository.createUser({email, password, lastName, firstName});
         const verificationToken = createVerificationToken(email, user.id);
         const id = user.id;
         await this.userRepository.updateUser({id}, {verificationToken});
-        await this.sendVerificationmail(email,verificationToken);
+        await this.sendVerificationmail(email,verificationToken, user.lastName);
     }
 
     /**
@@ -146,9 +148,8 @@ export class AuthService implements IAuthService{
             await this.userRepository.updateUser({email}, {verificationToken:null});
             const verificationToken = createVerificationToken(email ,user.id);
             await this.userRepository.updateUser({email}, {verificationToken});
-            this.sendVerificationmail(email, verificationToken);
+            this.sendVerificationmail(email, verificationToken, user.lastName);
         }
-    
     }
 
     /**
@@ -215,9 +216,6 @@ export class AuthService implements IAuthService{
         const user = await this.userRepository.getUser({email}) as UserwithProfile
         if(!user) { throw new BadRequestError("No User with Email Address!") }
         const userToken = createResetToken(user.email, user.id)
-
-        //the user might have no name since they should be able to reset password without onbaording
-        let name:string = user.profile?.name ??  "";  
-        await this.sendResetPasswordmail(userToken, email, name);    
+        await this.sendResetPasswordmail(userToken, email, user.lastName);    
     }
 }
