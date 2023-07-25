@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository, IUserService, Types, UserProfile, UserwithProfile } from "./user.interface";
-import { Profile, User, Wishlist } from "@prisma/client";
-import { BadRequestError, ForbiddenError, UnAuthorizedError } from "../../common/error";
+import { IUserRepository, IUserService, Types, UserwithProfile } from "./user.interface";
+import { Profile, Wishlist } from "@prisma/client";
+import { BadRequestError,UnAuthorizedError } from "../../common/error";
 import { AddProfileDto } from "./user.dtos";
 
 

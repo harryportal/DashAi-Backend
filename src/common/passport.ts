@@ -15,7 +15,7 @@ passport.use(
             clientSecret: GOOGLE_CLIENTSECRET,
             callbackURL: `${process.env.API_URL}/api/v1/auth/google/redirect`
         }, async(acessToken, refreshToken, profile, done)=>{
-                const {email, email_verified} = profile._json;
+                const {email, email_verified, family_name, name} = profile._json;
                 // Throws an error if user gmail is not verified
                 if(email_verified == "false"){
                     throw new UnAuthorizedError("Google Email not Verified")
@@ -33,6 +33,8 @@ passport.use(
                 if(!user){
                     user = await prisma.user.create({
                         data:{
+                            firstName: name!,
+                            lastName: family_name!,
                             email:email!,
                             verified: true,
                             googleSignOn:true

@@ -36,7 +36,7 @@ export class WishlistService implements IWishlistService{
         let wishlist;
         if(includeUser){
             wishlist = await this.wishlistRepository.getWishlist({shortId:id}, 
-                {user:{select:{profile:{select:{name:true}}}}})
+                {user:{select:{firstName:true, lastName:true}}})
         }else{
             wishlist = await this.wishlistRepository.getWishlist({id});
         }

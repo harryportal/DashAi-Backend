@@ -32,7 +32,7 @@ export default class GiftService {
             throw new BadRequestError("This is not how you send gifts to yourself😃")
         }
 
-        const sendgiftTemplate = sendGiftTemplate(giftUrl, user.profile!.name,message, recipientName)
+        const sendgiftTemplate = sendGiftTemplate(giftUrl, user.lastName, message, recipientName)
         await this.mailService.addEmailToQueue({to:recipientEmail, subject: "You've been dashed a new Gift", html:sendgiftTemplate})
     }
 }
