@@ -28,8 +28,9 @@ model User {
 
 model Profile {
   id String @id @default(uuid())
-  username String
-  gender String 
+  birthday String
+  purpose String
+  giftingOccasions String[]
   location String @db.VarChar()
   userId  String @unique
   user    User @relation(fields: [userId], references: [id])
