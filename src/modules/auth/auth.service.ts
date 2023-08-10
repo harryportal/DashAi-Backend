@@ -35,7 +35,7 @@ export class AuthService implements IAuthService{
      * @param verificationToken - verify email jwt token
      */
     private async sendVerificationmail(email:string,verificationToken:string, name:string):Promise<void>{
-        const verifyEmailUrl = `${process.env.FRONTENDURL}/${verificationToken}`;
+        const verifyEmailUrl = `${process.env.APIURL}/verification?token=${verificationToken}`;
         const mailtemplate = completeprofileTemplate(verifyEmailUrl,name);
         await this.mailService.addEmailToQueue({to:email, subject: "Verify Your Email Address", html:mailtemplate})
     }
@@ -81,14 +81,15 @@ export class AuthService implements IAuthService{
      * If valid, delete the verification token from the user and mark the user verified
      * @param verificationToken - jwt verification token
      */
-    public async verifyEmail(verificationToken:string):Promise<void>{
+    public async verifyEmail(verificationToken:string):Promise<boolean>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
         const {email, id } = jwtPayload;
         const user = await this.userRepository.getUser({id}) as User;
         if(!user || (user.verificationToken != verificationToken)){
-            throw new UnAuthorizedError("Invalid or Expired Token!")
+            return false
         }
         await this.userRepository.updateUser({email}, {verificationToken:null, verified:true});
+        return true
     }
 
     /**

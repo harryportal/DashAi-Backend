@@ -20,7 +20,7 @@ export interface IAuthRepository {
 
 export interface IAuthService {
   signUp(userInfo:SignUpDto): Promise<void>;
-  verifyEmail(verificationToken: string): Promise<void>;
+  verifyEmail(verificationToken: string): Promise<boolean>;
   signIn(email: string, password: string): Promise<ISignInResponse>;
   getVerificationMail(email: string): Promise<void>;
   googleSignOn(user:User):Promise<ISignInResponse>

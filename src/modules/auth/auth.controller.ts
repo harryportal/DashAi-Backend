@@ -58,7 +58,7 @@ export class AuthController {
 
     public verifyEmail = async(req:Request, res:Response)=>{
         const token = req.query.token as string;
-        await this.authService.verifyEmail(token)
-        return res.status(200).json({success:true, message:"Your Email has been verified!"})
+        const status = await this.authService.verifyEmail(token)
+        return res.redirect(`${process.env.FRONTENDURL}/verify?valid=${status}`)
     }   
 }
