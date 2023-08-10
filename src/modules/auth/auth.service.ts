@@ -35,7 +35,7 @@ export class AuthService implements IAuthService{
      * @param verificationToken - verify email jwt token
      */
     private async sendVerificationmail(email:string,verificationToken:string, name:string):Promise<void>{
-        const verifyEmailUrl = `${process.env.APIURL}/verification?token=${verificationToken}`;
+        const verifyEmailUrl = `${process.env.APIURL}/auth/verify-email?token=${verificationToken}`;
         const mailtemplate = completeprofileTemplate(verifyEmailUrl,name);
         await this.mailService.addEmailToQueue({to:email, subject: "Verify Your Email Address", html:mailtemplate})
     }

@@ -19,6 +19,6 @@ router.post("/forgot-password", RequestValidator.validate(ForgotPasswordDto), au
 router.post("/reset-password", RequestValidator.validate(ResetPasswordDto), authController.resetPassword)
 router.get("/access-token", authController.getAccessToken)
 router.get("/verification", protect(), authController.getVerficiationMail)
-router.post("/verification", authController.verifyEmail);
+router.get("/verify-email", authController.verifyEmail);
 router.get("/google", passport.authenticate("google", {scope: ["profile", "email"] }))
 router.get("/google/redirect", passport.authenticate("google"), authController.googleSignOn);
