@@ -22,6 +22,8 @@ model User {
   verified Boolean @default(false)
   calendarStatus Boolean @default(false)
   verificationToken String? @unique
+  sentGifts GiftOrder[] @relation("sentGifts")
+  recievedGift GiftOrder[] @relation("recievedGifts")
   wishlists   Wishlist[]
   refreshTokens    RefreshToken[]
 }
@@ -53,9 +55,31 @@ model Gift {
   price Decimal
   giftId  String // references the id of the gift from the external Api
   imageUrl String // references the image url of the gifts
+  giftOrders GiftOrder[]
   tags  Tag[] 
   wishlists Wishlist[] 
   curatedgifts  CuratedGifts[] 
+}
+
+enum PaymentStatus{
+  PAID
+  NOT_PAID
+}
+
+model GiftOrder {
+  id String @id @default(uuid())
+  senderId  String 
+  recieverId  String?
+  recipientEmail String
+  personalisedMessage String? @db.Text()
+  giftingPurpose String @db.VarChar(255)
+  gifts Gift[]
+  sender  User @relation(fields: [senderId], references: [id], name: "sentGifts")
+  reciever User? @relation(fields: [recieverId], references: [id], name: "recievedGifts")
+  isAccepted Boolean @default(false)
+  totalAmount Decimal
+  paymentStatus PaymentStatus @default(NOT_PAID)
+  stripePaymentIntentId String @unique // has to be stored so the sender can be charged once gift is accepted
 }
 
 model CuratedGifts {
