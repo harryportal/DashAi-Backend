@@ -39,7 +39,7 @@ export default class StripeService implements IPaymentService{
      * @param customerEmail 
      * @returns stripe checkout link
      */
-    public createCheckOutLink = async(orderId:string, customerEmail:string, giftDetails:IGiftCheckout[]):Promise<string>=>{
+    public createCheckoutLink = async(orderId:string, customerEmail:string, giftDetails:IGiftCheckout[]):Promise<string>=>{
         try {
             const session = await this.stripe.checkout.sessions.create({
                 client_reference_id: orderId,
