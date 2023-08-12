@@ -8,7 +8,12 @@ export interface IGiftRepository{
     getGift(where:Prisma.GiftWhereUniqueInput):Promise<Gift | null>
 }
 
-
+export interface IGiftCheckout {
+    name:string;
+    amount:number;
+    imageUrl:string;
+    quantity:number;
+}
 export interface IGiftService {
     sendGift(giftId:string, data:SendGiftsDto, userId:string):Promise<void>;
 }

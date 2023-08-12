@@ -3,10 +3,12 @@ import Stripe from "stripe";
 import logger from "../../utils/logging/winston";
 import { BadRequestError } from "../../common/error";
 import { IUserRepository, Types } from "../user/user.interface";
+import { IGiftCheckout } from "../gifts/gift.interface";
+import { IPaymentService } from "./payment.interface";
 
 
 @injectable()
-export default class StripeService {
+export default class StripeService implements IPaymentService{
     private stripe:Stripe;
     constructor(@inject(Types.IUserRepository)private readonly userRepository:IUserRepository,
         private readonly secretKey = process.env.STRIPE_SECRETKEY!, 
@@ -37,23 +39,36 @@ export default class StripeService {
      * @param customerEmail 
      * @returns stripe checkout link
      */
-    public createCheckOutSession = async(orderId:string, customerEmail:string):Promise<string>=>{
-        try{
+    public createCheckOutLink = async(orderId:string, customerEmail:string, giftDetails:IGiftCheckout[]):Promise<string>=>{
+        try {
             const session = await this.stripe.checkout.sessions.create({
                 client_reference_id: orderId,
-                customer_email:customerEmail,
+                customer_email: customerEmail,
+                line_items: giftDetails.map(item => ({
+                    price_data: {
+                        currency: "usd",
+                        product_data: {
+                            name: item.name,
+                            images: [item.imageUrl],
+                        },
+                        unit_amount:item.amount * 100, 
+                    },
+                    quantity: item.quantity,
+                })),
                 mode: "payment",
-                payment_intent_data:{  
-                    // This will allow the customer to be charged only when the reciever claims the gift
-                    capture_method:"manual"
+                payment_intent_data: {
+                    capture_method: "manual",
                 },
                 success_url: process.env.HOMEPAGE_URL!,
-                cancel_url:  process.env.HOMEPAGE_URL!
-               }) 
+                cancel_url: process.env.HOMEPAGE_URL!,
+            });
+        
             return session.url as string;
-        }catch(error){
+        } catch (error) {
+            logger.error(`Failed to create a checkout session, ${error}`)
             throw new BadRequestError(`Failed to create a checkout session, ${error}`);
-    }}
+        }
+    }
 
     /**
      * Creates a price and attach name(if they don't already exist) 
