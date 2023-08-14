@@ -102,15 +102,16 @@ export class AuthService{
      * @param password 
      * @returns access and refresh tokens
      */
-    public async signIn(email:string, password:string):Promise<ISignInResponse>{
+    public async signIn(email:string, _password:string):Promise<ISignInResponse>{
         email = email.toLowerCase();
         const user = await this.userRepository.getUser({email}, {profile:true}) as UserwithProfile;
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
-        const checkPassword = await comparePassword(password, user.password!)
+        const checkPassword = await comparePassword(_password, user.password!)
         if(!checkPassword) { throw new UnAuthorizedError("Invalid Login Credentials") }
         const {refreshToken, accessToken} = await this.generateToken(user);
-        return {accessToken, refreshToken, user};
+        const {password, ...userwithoutPassword} = user;
+        return {accessToken, refreshToken, user:userwithoutPassword};
     }
 
     /**

@@ -21,7 +21,7 @@ export const Types = {
 export interface ISignInResponse{
     refreshToken:string,
     accessToken:string,
-    user: UserwithProfile
+    user: Omit<UserwithProfile, "password">
 }
 
 export interface IToken extends Pick<ISignInResponse, "accessToken"|"refreshToken">{};
