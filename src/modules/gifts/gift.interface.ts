@@ -1,12 +1,4 @@
-import { Gift, Prisma } from "@prisma/client";
 import { SendGiftsDto } from "./gift.dtos";
-
-export interface IGiftRepository{
-    deleteGift(where:Prisma.GiftWhereUniqueInput):Promise<void>;
-    getGifts(where:Prisma.GiftWhereInput):Promise<Gift[]>;
-    updateGift(where:Prisma.GiftWhereUniqueInput, data:Prisma.GiftUpdateInput):Promise<Gift>;
-    getGift(where:Prisma.GiftWhereUniqueInput):Promise<Gift | null>
-}
 
 export interface IGiftCheckout {
     name:string;
@@ -14,10 +6,8 @@ export interface IGiftCheckout {
     imageUrl:string;
     quantity:number;
 }
-export interface IGiftService {
-    sendGift(data:SendGiftsDto, userId:string):Promise<void>;
-}
+
 export const Types = {
-    IGiftRepository: Symbol("IGiftRepository"),
-    IGiftService: Symbol("IGiftService")    
+    GiftRepository: Symbol("GiftRepository"),
+    GiftService: Symbol("GiftService")    
 }

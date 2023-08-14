@@ -1,17 +1,20 @@
 import { inject, injectable } from "inversify";
-import { IGiftService, Types } from "./gift.interface";
+import { Types } from "./gift.interface";
 import { AuthRequest } from "../auth/auth.interface";
 import { Response } from "express";
 import { SendGiftsDto } from "./gift.dtos";
+import GiftService from "./gift.service";
 
 @injectable()
 export default class GiftController {
-    constructor(@inject(Types.IGiftService)private readonly giftService:IGiftService){}
+    constructor(@inject(Types.GiftService)private readonly giftService:GiftService){}
 
-    sendGift = async(req:AuthRequest, res:Response)=>{
+    getCheckoutLink = async(req:AuthRequest, res:Response)=>{
         const userId = req.payload!.id;
+        const cartId = req.params.id;
         const giftData = req.body as SendGiftsDto;
-        await this.giftService.sendGift(giftData, userId);
-        return res.status(200).json({success:true, message:"Your gift has been sent😊"})
+        const link = await this.giftService.getCheckoutLink(giftData, cartId, userId);
+        res.redirect(link);
+        //return res.status(200).json({success:true, message:"Your gift has been sent😊"})
     }
 }

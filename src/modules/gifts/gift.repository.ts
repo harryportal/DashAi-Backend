@@ -1,10 +1,8 @@
 import { Gift, Prisma, PrismaClient } from "@prisma/client";
 import { inject, injectable } from "inversify";
-import { IGiftRepository } from "./gift.interface";
-
 
 @injectable()
-export default class GiftRepository implements IGiftRepository{
+export default class GiftRepository{
     constructor(@inject(PrismaClient)private readonly prisma: PrismaClient){}
 
     async addGift(data:Prisma.GiftCreateInput):Promise<Gift>{

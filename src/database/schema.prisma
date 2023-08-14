@@ -10,97 +10,110 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id String @id @default(uuid())
-  email String @unique @db.VarChar(255)
-  firstName String 
-  lastName String 
-  password String?  @db.VarChar(255)
-  profile Profile?
-  googleSignOn Boolean @default(false)
-  verified Boolean @default(false)
-  calendarStatus Boolean @default(false)
-  verificationToken String? @unique
-  sentGifts GiftOrder[] @relation("sentGifts")
-  recievedGift GiftOrder[] @relation("recievedGifts")
-  wishlists   Wishlist[]
-  refreshTokens    RefreshToken[]
+  id                String         @id @default(uuid())
+  email             String         @unique @db.VarChar(255)
+  firstName         String
+  lastName          String
+  password          String?        @db.VarChar(255)
+  profile           Profile?
+  googleSignOn      Boolean        @default(false)
+  verified          Boolean        @default(false)
+  calendarStatus    Boolean        @default(false)
+  verificationToken String?        @unique
+  carts             Cart[]
+  sentGifts         Order[]        @relation("sentGifts")
+  recievedGift      Order[]        @relation("recievedGifts")
+  wishlists         Wishlist[]
+  refreshTokens     RefreshToken[]
 }
 
 model Profile {
-  id String @id @default(uuid())
-  birthday String
-  purpose String
+  id               String   @id @default(uuid())
+  birthday         String
+  purpose          String
   giftingOccasions String[]
-  location String @db.VarChar()
-  userId  String @unique
-  user    User @relation(fields: [userId], references: [id])
+  location         String   @db.VarChar()
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
 }
 
 model Wishlist {
-  id String @id @default(uuid())
-  name String @db.VarChar(255)
+  id          String  @id @default(uuid())
+  name        String  @db.VarChar(255)
   description String?
-  shortId   String  @unique
-  userId  String 
-  user   User @relation(fields: [userId], references: [id])
-  gifts Gift[]  
+  shortId     String  @unique
+  userId      String
+  user        User    @relation(fields: [userId], references: [id])
+  gifts       Gift[]
 }
 
 model Gift {
-  id String @id @default(uuid())
-  name  String  @db.VarChar(255)
-  description String  @db.VarChar(255)
-  price Decimal
-  giftId  String // references the id of the gift from the external Api
-  imageUrl String // references the image url of the gifts
-  giftOrders GiftOrder[]
-  tags  Tag[] 
-  wishlists Wishlist[] 
-  curatedgifts  CuratedGifts[] 
-}
-
-enum PaymentStatus{
-  PAID
-  NOT_PAID
+  id           String         @id @default(uuid())
+  name         String         @db.VarChar(255)
+  description  String         @db.VarChar(255)
+  price        Decimal
+  giftId       String // references the id of the gift from the external Api
+  imageUrl     String // references the image url of the gifts
+  tags         Tag[]
+  cartGifts    CartGift[]
+  wishlists    Wishlist[]
+  curatedgifts CuratedGifts[]
 }
 
 model Order {
-  id String @id @default(uuid())
-  senderId  String 
-  recieverId  String?
-  recipientEmail String
-  personalisedMessage String? @db.Text()
-  giftingPurpose String @db.VarChar(255)
-  gifts Gift[]
-  isAnonymous Boolean @default(false)
-  sender  User @relation(fields: [senderId], references: [id], name: "sentGifts")
-  reciever User? @relation(fields: [recieverId], references: [id], name: "recievedGifts")
-  isAccepted Boolean @default(false)
-  totalAmount Decimal
-  paymentStatus PaymentStatus @default(NOT_PAID)
-  stripePaymentIntentId String @unique // has to be stored so the sender can be charged once gift is accepted
+  id                    String  @id @default(uuid())
+  senderId              String
+  recieverId            String?
+  recipientEmail        String
+  personalisedMessage   String? @db.Text()
+  giftingPurpose        String  @db.VarChar(255)
+  cartId                String  @unique
+  isAnonymous           Boolean @default(false)
+  cart                  Cart    @relation(fields: [cartId], references: [id])
+  sender                User    @relation(fields: [senderId], references: [id], name: "sentGifts")
+  reciever              User?   @relation(fields: [recieverId], references: [id], name: "recievedGifts")
+  isAccepted            Boolean @default(false)
+  totalAmount           Decimal
+  stripePaymentIntentId String  @unique // has to be stored so the sender can be charged once gift is accepted
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  userId    String
+  user      User  @relation(fields: [userId], references: [id])
+  gifts     CartGift[]  
+  Order     Order? 
+}
+
+model CartGift {
+  id       String @id @default(uuid())
+  giftId   String
+  cartId   String
+  quantity Int
+  gift     Gift   @relation(fields: [giftId], references: [id])
+  cart     Cart   @relation(fields: [cartId], references: [id])
 }
 
 model CuratedGifts {
-  id String @id @default(uuid())
-  title String @db.VarChar(255)
+  id          String @id @default(uuid())
+  title       String @db.VarChar(255)
   description String @db.VarChar(255)
-  gifts Gift[] 
+  gifts       Gift[]
 }
 
 model Tag {
-  id String @id @default(uuid())
-  name String @db.VarChar(255)
-  gifts Gift[] 
+  id    String @id @default(uuid())
+  name  String @db.VarChar(255)
+  gifts Gift[]
 }
 
 model RefreshToken {
-  id            String      @id @default(uuid())
-  userId String
-  token         String      @unique
-  createdAt     DateTime    @default(now())
-  expiresAt     DateTime
-  user          User @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
 }
