@@ -1,18 +1,19 @@
 import { User } from "@prisma/client";
 import { BadRequestError, ConflictError, UnAuthorizedError } from "../../common/error";
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
-import { Types, IAuthRepository, IAuthService, ISignInResponse, IToken,jwtPayload } from "./auth.interface";
+import { Types, ISignInResponse, IToken,jwtPayload } from "./auth.interface";
 import { injectable, inject } from "inversify";
 import { IUserRepository, Types as UserTypes, UserwithProfile } from "../user/user.interface";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
 import { IEmailQueue, MailTypes } from "../mail/mail.interface";
 import { SignUpDto } from "./auth.dtos";
+import AuthRepository from "./auth.repository";
 
 
 @injectable()
-export class AuthService implements IAuthService{
-    constructor(@inject(Types.IAuthRepository)private readonly authRepository:IAuthRepository,
+export class AuthService{
+    constructor(@inject(Types.AuthRepository)private readonly authRepository:AuthRepository,
     @inject(UserTypes.IUserRepository)private readonly userRepository:IUserRepository,
     @inject(MailTypes.IEmailQueue)private readonly mailService:IEmailQueue){}
 
@@ -81,15 +82,16 @@ export class AuthService implements IAuthService{
      * If valid, delete the verification token from the user and mark the user verified
      * @param verificationToken - jwt verification token
      */
-    public async verifyEmail(verificationToken:string):Promise<boolean>{
+    public async verifyEmail(verificationToken:string):Promise<string>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
         const {email, id } = jwtPayload;
         const user = await this.userRepository.getUser({id}) as User;
+        const frontendUrl = process.env.FRONTENDURL
         if(!user || (user.verificationToken != verificationToken)){
-            return false
+            return `${frontendUrl}/verify`
         }
         await this.userRepository.updateUser({email}, {verificationToken:null, verified:true});
-        return true
+        return `${frontendUrl}/verified`
     }
 
     /**
@@ -102,15 +104,13 @@ export class AuthService implements IAuthService{
      */
     public async signIn(email:string, password:string):Promise<ISignInResponse>{
         email = email.toLowerCase();
-        const user = await this.userRepository.getUser({email}, {profile:true}) as UserwithProfile
+        const user = await this.userRepository.getUser({email}, {profile:true}) as UserwithProfile;
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
         const checkPassword = await comparePassword(password, user.password!)
         if(!checkPassword) { throw new UnAuthorizedError("Invalid Login Credentials") }
         const {refreshToken, accessToken} = await this.generateToken(user);
-        const onboardingStatus = user.profile ? true: false;
-        const verificationStatus = user.verified;
-        return {accessToken, refreshToken, onboardingStatus, verificationStatus};
+        return {accessToken, refreshToken, user};
     }
 
     /**
@@ -131,9 +131,7 @@ export class AuthService implements IAuthService{
 
     public async googleSignOn(user:UserwithProfile):Promise<ISignInResponse>{
         const  {accessToken, refreshToken} = await this.generateToken(user);
-        const onboardingStatus = user.profile ? true: false;
-        const verificationStatus = user.verified;
-        return {accessToken, refreshToken, onboardingStatus, verificationStatus};
+        return {accessToken, refreshToken, user};
     }
 
     /**

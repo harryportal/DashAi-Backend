@@ -1,6 +1,7 @@
 import { Prisma, RefreshToken, User } from "@prisma/client";
 import { Request } from "express";
 import { SignUpDto } from "./auth.dtos";
+import { UserwithProfile } from "../user/user.interface";
 
 export interface jwtPayload{
     id: string;
@@ -12,34 +13,15 @@ export interface AuthRequest extends Request {
     payload?:jwtPayload
 }
 
-export interface IAuthRepository {
-    createRefreshToken(data: Prisma.RefreshTokenCreateInput):Promise<void>
-    getRefreshToken(refreshToken: string): Promise<RefreshToken| null>;
-    deleteRefreshToken(refreshToken: string): Promise<void>;
-}
-
-export interface IAuthService {
-  signUp(userInfo:SignUpDto): Promise<void>;
-  verifyEmail(verificationToken: string): Promise<boolean>;
-  signIn(email: string, password: string): Promise<ISignInResponse>;
-  getVerificationMail(email: string): Promise<void>;
-  googleSignOn(user:User):Promise<ISignInResponse>
-  resetPassword(token: string, password: string, confirmPassword: string): Promise<void>;
-  getAccessToken(refreshToken: string): Promise<string>;
-  deleteRefreshToken(refreshToken: string): Promise<void>;
-  forgotPassword(email: string): Promise<void>;
-}
-
 export const Types = {
-    IAuthService: Symbol("IAuthService"),
-    IAuthRepository:Symbol("IAuthRepository")
+    AuthService: Symbol("AuthService"),
+    AuthRepository:Symbol("AuthRepository")
 }
 
 export interface ISignInResponse{
     refreshToken:string,
     accessToken:string,
-    onboardingStatus:boolean,
-    verificationStatus:boolean,
+    user: UserwithProfile
 }
 
 export interface IToken extends Pick<ISignInResponse, "accessToken"|"refreshToken">{};

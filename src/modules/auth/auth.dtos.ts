@@ -45,3 +45,5 @@ export class ResetPasswordDto{
     })
     confirmPassword:string
 }
+
+export class EmailVerifyDto extends ForgotPasswordDto {}

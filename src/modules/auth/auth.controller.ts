@@ -1,12 +1,13 @@
 import { inject, injectable } from "inversify";
-import { AuthRequest, Types, IAuthService } from "./auth.interface";
+import { AuthRequest, Types } from "./auth.interface";
 import { Request, Response } from "express";
 import { UserwithProfile } from "../user/user.interface";
 import { SignInDto, SignUpDto } from "./auth.dtos";
+import { AuthService } from "./auth.service";
 
 @injectable()
 export class AuthController {
-    constructor(@inject(Types.IAuthService)private readonly authService:IAuthService){}
+    constructor(@inject(Types.AuthService)private readonly authService:AuthService){}
 
     public signUp = async(req:Request, res:Response)=>{
         const userInfo = req.body as SignUpDto;
@@ -28,6 +29,12 @@ export class AuthController {
 
     public getVerficiationMail = async(req:AuthRequest, res:Response)=>{
         const email = req.payload!.email;
+        await this.authService.getVerificationMail(email);
+        return res.json({success:true, message:"A verification link has been sent to your email address!"})
+    }
+    
+    public getVerficiationMailwithEmail = async(req:Request, res:Response)=>{
+        const email = req.body.email;
         await this.authService.getVerificationMail(email);
         return res.json({success:true, message:"A verification link has been sent to your email address!"})
     }
@@ -58,8 +65,7 @@ export class AuthController {
 
     public verifyEmail = async(req:Request, res:Response)=>{
         const token = req.query.token as string;
-        const status = await this.authService.verifyEmail(token)
-        res.header("valid", `${status}`)
-        return res.redirect(`${process.env.FRONTENDURL}/verify`)
+        const redirectLink = await this.authService.verifyEmail(token)
+        return res.redirect(redirectLink)
     }   
 }
