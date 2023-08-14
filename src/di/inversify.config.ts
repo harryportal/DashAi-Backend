@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import {Container} from "inversify";
-import {Types as AuthTypes, IAuthRepository, IAuthService } from "../modules/auth/auth.interface";
+import {Types as AuthTypes } from "../modules/auth/auth.interface";
 import { IWishlistRepository, IWishlistService, Types as WishlistTypes } from "../modules/wishlist/wishlist.interface";
 import AuthRepository from "../modules/auth/auth.repository";
 import { AuthService } from "../modules/auth/auth.service";
@@ -17,7 +17,7 @@ import CuratedGiftRepository from "../modules/curated-gifts/curated-gifts.reposi
 import { CuratedGiftsService } from "../modules/curated-gifts/curated-gifts.service";
 import { IPaymentService, Types as PaymentTypes } from "../modules/payment/payment.interface";
 import StripeService from "../modules/payment/payment.service";
-import { Types as GiftTypes, IGiftRepository, IGiftService } from "../modules/gifts/gift.interface";
+import { Types as GiftTypes } from "../modules/gifts/gift.interface";
 import GiftService from "../modules/gifts/gift.service";
 import GiftRepository from "../modules/gifts/gift.repository";
 
@@ -26,16 +26,16 @@ const container = new Container();
 container.bind<ICuratedGiftsRepository>(CuratedGiftsTypes.ICuratedGiftsRepository).to(CuratedGiftRepository)
 container.bind<ICuratedGiftsService>(CuratedGiftsTypes.ICuratedGiftsService).to(CuratedGiftsService)
 container.bind(PrismaClient).toConstantValue(new PrismaClient());
-container.bind<IAuthRepository>(AuthTypes.IAuthRepository).to(AuthRepository);
-container.bind<IAuthService>(AuthTypes.IAuthService).to(AuthService);
+container.bind<AuthRepository>(AuthTypes.AuthRepository).to(AuthRepository);
+container.bind<AuthService>(AuthTypes.AuthService).to(AuthService);
 container.bind<IUserRepository>(UserTypes.IUserRepository).to(UserRepository);
 container.bind<IEmailQueue>(MailTypes.IEmailQueue).to(EmailQueue);
 container.bind<IMailService>(MailTypes.IMailService).to(MailService);
 container.bind<IUserService>(UserTypes.IUserService).to(UserService)
 container.bind<IWishlistRepository>(WishlistTypes.IWishlistRepository).to(WishlistRepository);
 container.bind<IWishlistService>(WishlistTypes.IWishlistService).to(WishlistService);
-container.bind<IGiftRepository>(GiftTypes.IGiftRepository).to(GiftRepository);
-container.bind<IGiftService>(GiftTypes.IGiftService).to(GiftService);
+container.bind<GiftRepository>(GiftTypes.GiftRepository).to(GiftRepository);
+container.bind<GiftService>(GiftTypes.GiftService).to(GiftService);
 container.bind<IPaymentService>(PaymentTypes.IPaymentService).to(StripeService)
 
 export default container;
