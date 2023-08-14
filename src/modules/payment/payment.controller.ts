@@ -1,11 +1,11 @@
 import { Response } from "express";
 import { AuthRequest, jwtPayload } from "../auth/auth.interface";
-import { IPaymentService, PTypes } from "./payment.interface";
+import { IPaymentService, Types } from "./payment.interface";
 import { inject, injectable } from "inversify";
 
 @injectable()
 export default class PaymentController {
-    constructor(@inject(PTypes.IPaymentService)private readonly paymentService:IPaymentService){}
+    constructor(@inject(Types.IPaymentService)private readonly paymentService:IPaymentService){}
     
 
     public createCheckoutSession = async(req:AuthRequest, res:Response)=>{

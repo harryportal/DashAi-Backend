@@ -10,9 +10,8 @@ export default class GiftController {
 
     sendGift = async(req:AuthRequest, res:Response)=>{
         const userId = req.payload!.id;
-        const giftId = req.params.id;
         const giftData = req.body as SendGiftsDto;
-        await this.giftService.sendGift(giftId, giftData, userId);
+        await this.giftService.sendGift(giftData, userId);
         return res.status(200).json({success:true, message:"Your gift has been sent😊"})
     }
 }

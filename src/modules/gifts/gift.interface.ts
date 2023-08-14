@@ -15,7 +15,7 @@ export interface IGiftCheckout {
     quantity:number;
 }
 export interface IGiftService {
-    sendGift(giftId:string, data:SendGiftsDto, userId:string):Promise<void>;
+    sendGift(data:SendGiftsDto, userId:string):Promise<void>;
 }
 export const Types = {
     IGiftRepository: Symbol("IGiftRepository"),

@@ -51,7 +51,7 @@ export default class StripeService implements IPaymentService{
                             name: item.name,
                             images: [item.imageUrl],
                         },
-                        unit_amount:item.amount * 100, 
+                        unit_amount:item.amount * 100, // converts amount to cents
                     },
                     quantity: item.quantity,
                 })),
@@ -70,18 +70,4 @@ export default class StripeService implements IPaymentService{
         }
     }
 
-    /**
-     * Creates a price and attach name(if they don't already exist) 
-     * to a gift object -- will be referenced when creating the link for stripe checkout session
-     * @param amount 
-     * @param giftName 
-     */
-    private createPrice = async(amount:number, giftName:string)=>{
-        await this. stripe.prices.create({
-        unit_amount: 1999,
-        currency: 'usd',
-        recurring: {interval: 'month'},
-        product_data: { name: giftName }
-      });
-    }
 }

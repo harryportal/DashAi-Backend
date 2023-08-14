@@ -5,6 +5,6 @@ export interface IPaymentService {
 }
 
 
-export const PTypes = {
+export const Types = {
     IPaymentService:Symbol("IPaymentService")
 };
