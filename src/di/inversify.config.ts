@@ -20,6 +20,8 @@ import StripeService from "../modules/payment/payment.service";
 import { Types as GiftTypes } from "../modules/gifts/gift.interface";
 import GiftService from "../modules/gifts/gift.service";
 import GiftRepository from "../modules/gifts/gift.repository";
+import OrderRepository from "../modules/orders/order.repository";
+import { OrderTypes } from "../modules/orders/order.interface";
 
 const container = new Container();
 
@@ -37,5 +39,6 @@ container.bind<IWishlistService>(WishlistTypes.IWishlistService).to(WishlistServ
 container.bind<GiftRepository>(GiftTypes.GiftRepository).to(GiftRepository);
 container.bind<GiftService>(GiftTypes.GiftService).to(GiftService);
 container.bind<IPaymentService>(PaymentTypes.IPaymentService).to(StripeService)
+container.bind<OrderRepository>(OrderTypes.OrderRepository).to(OrderRepository);
 
 export default container;
