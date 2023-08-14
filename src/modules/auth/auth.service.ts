@@ -142,7 +142,10 @@ export class AuthService{
      * @param email 
      */
     public async getVerificationMail(email:string){
-        const user = await this.userRepository.getUser({email}) as User;
+        const user = await this.userRepository.getUser({email});
+        if(!user) {
+            throw new BadRequestError("Email does not exist, Please sign up on dash to get started")
+        }
         if(!user.verified){
             await this.userRepository.updateUser({email}, {verificationToken:null});
             const verificationToken = createVerificationToken(email ,user.id);
