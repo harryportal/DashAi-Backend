@@ -13,7 +13,7 @@ passport.use(
         {
             clientID:GOOGLE_CLIENTID,
             clientSecret: GOOGLE_CLIENTSECRET,
-            callbackURL: `${process.env.API_URL}/api/v1/auth/google/redirect`
+            callbackURL: `https://dashai.netlify.app/google-sign/`
         }, async(acessToken, refreshToken, profile, done)=>{
                 const {email, email_verified, family_name, name} = profile._json;
                 // Throws an error if user gmail is not verified
