@@ -30,7 +30,7 @@ passport.use(
                 let user = await prisma.user.findUnique({
                     where: {email}, 
                     select: {id:true, firstName:true, lastName:true,
-                    email:true, verified:true, password:true, profile:true}
+                    email:true, verified:true, profile:true}
                 });
                 if(!user){
                     user = await prisma.user.create({
@@ -42,7 +42,7 @@ passport.use(
                             googleSignOn:true
                         }, 
                         select: {id:true, firstName:true, lastName:true, email:true, 
-                        verified:true, password:true, profile:true}
+                        verified:true, profile:true}
                     })
                 }
                 return done(null, user);
