@@ -1,17 +1,18 @@
 import { Response } from "express";
-import { AuthRequest, jwtPayload } from "../auth/auth.interface";
-import { IPaymentService, Types } from "./payment.interface";
+import { AuthRequest} from "../auth/auth.interface";
 import { inject, injectable } from "inversify";
+import { IPaymentService, PaymentTypes } from "./payment.interface";
 
 @injectable()
 export default class PaymentController {
-    constructor(@inject(Types.IPaymentService)private readonly paymentService:IPaymentService){}
-    
+    constructor(@inject(PaymentTypes.IPaymentService)private readonly service:IPaymentService){}
 
-    public createCheckoutSession = async(req:AuthRequest, res:Response)=>{
-        let {email} = req.payload as jwtPayload;
-
-        //const checkouturl = await this.paymentService.createCheckoutLink(email);
-        //res.status(200).json({success:true, data: checkouturl})
+    public webhookHandler = async(req:AuthRequest, res:Response)=>{
+        let payload = req.body as Buffer;
+        const signature = req.headers['stripe-signature'] as string;
+        await this.service.handleWebhook(payload, signature)
+        return res.status(200).json({success:true})
     }
+
+
 }

@@ -3,18 +3,19 @@ import { BadRequestError, ConflictError, UnAuthorizedError } from "../../common/
 import { comparePassword, createAcessToken, createRefreshToken, createResetToken, createVerificationToken, hashPassword, verifyJWT } from "../../utils/jwtAuth/jwt";
 import { Types, ISignInResponse, IToken,jwtPayload } from "./auth.interface";
 import { injectable, inject } from "inversify";
-import { IUserRepository, Types as UserTypes, UserwithProfile } from "../user/user.interface";
+import { Types as UserTypes, UserwithProfile } from "../user/user.interface";
 import { createresetTemplate } from "../../utils/mailTemplates/resetPassword";
 import { completeprofileTemplate } from "../../utils/mailTemplates/completeProfile";
 import { IEmailQueue, MailTypes } from "../mail/mail.interface";
 import { SignUpDto } from "./auth.dtos";
 import AuthRepository from "./auth.repository";
+import { UserRepository } from "../user/user.repository";
 
 
 @injectable()
 export class AuthService{
     constructor(@inject(Types.AuthRepository)private readonly authRepository:AuthRepository,
-    @inject(UserTypes.IUserRepository)private readonly userRepository:IUserRepository,
+    @inject(UserTypes.UserRepository)private readonly userRepository:UserRepository,
     @inject(MailTypes.IEmailQueue)private readonly mailService:IEmailQueue){}
 
     /**
@@ -65,14 +66,16 @@ export class AuthService{
      */
     public async signUp(userInfo:SignUpDto):Promise<void>{
         let {email, firstName, lastName, password } = userInfo;
-        let user = await this.userRepository.getUser({email});
-        if(user){ throw new ConflictError("Email Already Exists. Please use another email Adress") }
         password = await hashPassword(password);
-        user = await this.userRepository.createUser({email, password, lastName, firstName});
-        const verificationToken = createVerificationToken(email, user.id);
-        const id = user.id;
-        await this.userRepository.updateUser({id}, {verificationToken});
-        await this.sendVerificationmail(email,verificationToken, user.lastName);
+        try {
+            const user = await this.userRepository.createUser({email, password, lastName, firstName});
+            const verificationToken = createVerificationToken(email, user.id);
+            const id = user.id;
+            await this.userRepository.updateUser({id}, {verificationToken});
+            await this.sendVerificationmail(email,verificationToken, user.lastName);
+        }catch(err:any){
+            throw new ConflictError("Email Already Exists. Please use another email Adress") 
+        }
     }
 
     /**

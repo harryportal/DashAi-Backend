@@ -69,7 +69,7 @@ export const giftsJson = [
       "description": "Send virtual well wishes with a beautiful bouquet!",
       "price": 12.99,
       "giftId": "vwx901",
-      "imageUrl": "https://example.com/images/virtual_get_well_soon_bouquet.jpg",
+      "imageUrl": "https://thumbs.dreamstime.com/b/different-gift-cards-many-brands-such-as-amazon-netflix-xbox-google-play-best-buy-spotify-montreal-canada-april-card-178512156.jpg",
       "curatedListId":"f27e20d5-8d34-49b2-835b-1b69f0b29a3d",
       "tagsId":[{id: "9f99dbf4-8f53-48a7-b7df-1a31562ab84a"}, 
       {id: "f27e20d5-8d34-49b2-835b-1b69f0b29a3d"}, {id: "f1a15e7d-747a-4f96-b413-72b71dcbf3b1",}]
@@ -93,7 +93,7 @@ export const giftsJson = [
       "description": "Welcome the newborn virtually with a cozy blanket!",
       "price": 17.99,
       "giftId": "bcd567",
-      "imageUrl": "https://example.com/images/virtual_new_baby_blanket.jpg",
+      "imageUrl": `https://thumbs.dreamstime.com/b/different-gift-cards-many-brands-such-as-amazon-netflix-xbox-google-play-best-buy-spotify-montreal-canada-april-card-178512156.jpg`,
       "curatedListId":"9f99dbf4-8f53-48a7-b7df-1a31562ab84a",
       "tagsId":[{id: "8ab3c477-0110-4e53-b58e-33029e9b9f16"}, 
       {id: "8ab3c477-0110-4e53-b58e-33029e9b9f16"}, {id: "96a5f982-fc4a-4c4e-b16e-3699eb8a7102"}]

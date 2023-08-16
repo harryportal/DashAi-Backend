@@ -1,23 +1,35 @@
 import { inject, injectable } from "inversify";
 import { CartTypes } from "./cart.interface";
-import CartRepository from "./cart.repository";
 import { AuthRequest } from "../auth/auth.interface";
 import { Response } from "express";
+import CartService from "./cart.service";
 import { AddGiftDto } from "./cart.dtos";
 
 @injectable()
 export default class CartController {
-    constructor(@inject(CartTypes.CartRepository)private readonly repository: CartRepository){}
+    constructor(@inject(CartTypes.CartService)private readonly service:CartService){}
 
     createCart = async(req:AuthRequest, res:Response)=>{
-        const {id} = await this.repository.createCart({user:{connect:{id:req.payload!.id}}});
-        return res.status(201).json({success:true, data: {id}})
+        const cart = await this.service.createCart(req.payload!.id);
+        return res.status(201).json({success:true, data:cart})
     }
 
     updateCart = async(req:AuthRequest, res:Response)=>{
-        const id = req.params.id;
-        const data = req.body as AddGiftDto;
-        await this.repository.updateCart({id}, {gifts: {create:{gift: {connect: {id: data.id}}, quantity:data.quantity}}})
+        const cartId = req.params.id;
+        await this.service.updateCart(cartId, req.body as AddGiftDto);
         return res.json({success:true})
+    }
+    
+    getCart = async(req:AuthRequest, res:Response)=>{
+        const cartId = req.params.id;
+        const cart = await this.service.getCart(cartId);
+        return res.json({success:true, data:cart})
+
+    }
+    getCartCheckoutLink = async(req:AuthRequest, res:Response)=>{
+        const email = req.payload!.email;
+        const cartId = req.params.id;
+        const checkoutUrl = await this.service.getCheckoutUrl(cartId, email);
+        res.json({success:true, checkoutUrl})
     }
 }

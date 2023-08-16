@@ -5,8 +5,10 @@ import { protect } from "../../common/auth";
 import RequestValidator from "../../common/validation";
 import { AddGiftDto } from "./cart.dtos";
 
-const router = Router();
+export const router = Router();
 const cartController = container.resolve<CartController>(CartController);
 
-router.post("/", protect(true), cartController.createCart)
-router.patch("/", protect(true), RequestValidator.validate(AddGiftDto), cartController.updateCart)
+router.get("/", protect(true), cartController.createCart)
+router.patch("/:id", protect(true), RequestValidator.validate(AddGiftDto), cartController.updateCart);
+router.get("/checkout/:id", protect(true), cartController.getCartCheckoutLink)
+router.get("/:id", protect(true), cartController.getCart)

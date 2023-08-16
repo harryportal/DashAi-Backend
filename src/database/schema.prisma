@@ -21,7 +21,7 @@ model User {
   verified          Boolean        @default(false)
   calendarStatus    Boolean        @default(false)
   verificationToken String?        @unique
-  carts             Cart[]
+  cart              Cart?
   sentGifts         Order[]        @relation("sentGifts")
   recievedGift      Order[]        @relation("recievedGifts")
   wishlists         Wishlist[]
@@ -33,7 +33,9 @@ model Profile {
   birthday         String
   purpose          String
   giftingOccasions String[]
-  location         String   @db.VarChar()
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  location         String   @db.VarChar(255)
   userId           String   @unique
   user             User     @relation(fields: [userId], references: [id])
 }
@@ -62,29 +64,36 @@ model Gift {
 }
 
 model Order {
-  id                    String  @id @default(uuid())
-  senderId              String
-  recieverId            String?
-  recipientEmail        String
-  personalisedMessage   String? @db.Text()
-  giftingPurpose        String  @db.VarChar(255)
-  cartId                String  @unique
-  isAnonymous           Boolean @default(false)
-  cart                  Cart    @relation(fields: [cartId], references: [id])
-  sender                User    @relation(fields: [senderId], references: [id], name: "sentGifts")
-  reciever              User?   @relation(fields: [recieverId], references: [id], name: "recievedGifts")
-  isAccepted            Boolean @default(false)
-  totalAmount           Decimal
-  stripePaymentIntentId String  @unique // has to be stored so the sender can be charged once gift is accepted
+  id                  String  @id @default(uuid())
+  senderId            String
+  recieverId          String?
+  recipientEmail      String
+  personalisedMessage String? @db.Text()
+  giftingPurpose      String  @db.VarChar(255)
+  cartId              String  @unique
+  isAnonymous         Boolean @default(false)
+  cart                Cart    @relation(fields: [cartId], references: [id])
+  sender              User    @relation(fields: [senderId], references: [id], name: "sentGifts")
+  reciever            User?   @relation(fields: [recieverId], references: [id], name: "recievedGifts")
+  isAccepted          Boolean @default(false)
+  totalAmount         Decimal
+}
+
+enum PaymentStatus {
+  PAID
+  PENDING
+  NOT_PAID
 }
 
 model Cart {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  userId    String
-  user      User  @relation(fields: [userId], references: [id])
-  gifts     CartGift[]  
-  Order     Order? 
+  id                    String        @id @default(uuid())
+  createdAt             DateTime      @default(now())
+  userId                String        @unique
+  user                  User          @relation(fields: [userId], references: [id])
+  paymentStatus         PaymentStatus @default(NOT_PAID)
+  stripePaymentIntentId String?       
+  gifts                 CartGift[]
+  Order                 Order?
 }
 
 model CartGift {

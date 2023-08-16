@@ -1,12 +1,13 @@
 import { inject, injectable } from "inversify";
-import { IUserService, Types } from "./user.interface";
+import { Types } from "./user.interface";
 import { AuthRequest } from "../auth/auth.interface";
 import { Response } from "express";
 import { AddProfileDto } from "./user.dtos";
+import { UserService } from "./user.service";
 
 @injectable()
 export default class UserController {
-    constructor(@inject(Types.IUserService)private readonly userService:IUserService){}
+    constructor(@inject(Types.UserService)private readonly userService:UserService){}
 
     getUserWishlist = async(req:AuthRequest, res:Response)=>{
         const id = req.payload!.id;

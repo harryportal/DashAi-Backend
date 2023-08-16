@@ -1,10 +1,10 @@
 import { Prisma, PrismaClient, Profile, User, Wishlist } from "@prisma/client";
 import { inject, injectable } from "inversify";
-import { IUserRepository, UserwithProfile } from "./user.interface";
+import { UserwithProfile } from "./user.interface";
 
 
 @injectable()
-export class UserRepository implements IUserRepository{
+export class UserRepository{
     constructor(@inject(PrismaClient)private readonly prisma:PrismaClient){}
     
     async getUser(uniqueInput:Prisma.UserWhereUniqueInput, include?:Prisma.UserInclude)

@@ -1,13 +1,14 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository, IUserService, Types, UserwithProfile } from "./user.interface";
+import { Types, UserwithProfile } from "./user.interface";
 import { Profile, Wishlist } from "@prisma/client";
 import { BadRequestError,UnAuthorizedError } from "../../common/error";
 import { AddProfileDto } from "./user.dtos";
+import { UserRepository } from "./user.repository";
 
 
 @injectable()
-export class UserService implements IUserService {
-    constructor(@inject(Types.IUserRepository)private readonly userRepository:IUserRepository){}
+export class UserService{
+    constructor(@inject(Types.UserRepository)private readonly userRepository:UserRepository){}
 
     /**
      * Fetches the wishlists belonging to the current user
@@ -19,7 +20,6 @@ export class UserService implements IUserService {
     }
 
     /**
-     * Verifies that a user with the id exists.
      * Verifies that the user's email address has been verified.
      * Adds and return the newly added profile.
      * @param profile 
@@ -27,17 +27,10 @@ export class UserService implements IUserService {
      * @returns the newly added profile
      */
     async addProfile(profile:AddProfileDto, id:string):Promise<Profile>{
-        const user = await this.getUserorThrow(id);
+        const user = await this.userRepository.getUser({id},{profile:true}) as UserwithProfile;
         if(user.profile){ throw new BadRequestError("User profile already exist!")};
         let addedProfile = await this.userRepository.addProfile({user:{connect:{id}},...profile});
         return addedProfile;
     }
-
-    async getUserorThrow(userId:string):Promise<UserwithProfile>{
-        const user = await this.userRepository.getUser({id:userId},{profile:true}) as UserwithProfile;
-        if(!user){ throw new UnAuthorizedError("No user with Provided with Credentials") };
-        return user;  
-    }
-
 
 }
