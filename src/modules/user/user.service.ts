@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Types, UserwithProfile } from "./user.interface";
-import { Profile, Wishlist } from "@prisma/client";
+import { Profile, User, Wishlist } from "@prisma/client";
 import { BadRequestError,UnAuthorizedError } from "../../common/error";
 import { AddProfileDto } from "./user.dtos";
 import { UserRepository } from "./user.repository";
@@ -27,10 +27,16 @@ export class UserService{
      * @returns the newly added profile
      */
     async addProfile(profile:AddProfileDto, id:string):Promise<Profile>{
-        const user = await this.userRepository.getUser({id},{profile:true}) as UserwithProfile;
+        const user = await this.userRepository.getUser({id}) as UserwithProfile;
         if(user.profile){ throw new BadRequestError("User profile already exist!")};
         let addedProfile = await this.userRepository.addProfile({user:{connect:{id}},...profile});
         return addedProfile;
+    }
+
+    async getProfile(userId:string){
+        const user = await this.userRepository.getUser({id:userId}) as UserwithProfile;
+        const {password, ...userData} = user;
+        return userData;
     }
 
 }

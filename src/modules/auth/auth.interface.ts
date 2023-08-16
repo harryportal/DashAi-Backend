@@ -22,6 +22,7 @@ export interface ISignInResponse{
     refreshToken:string,
     accessToken:string,
     user: Omit<UserwithProfile, "password">
+    onboardingStatus:boolean
 }
 
 export interface IToken extends Pick<ISignInResponse, "accessToken"|"refreshToken">{};

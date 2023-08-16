@@ -7,19 +7,26 @@ import { UserService } from "./user.service";
 
 @injectable()
 export default class UserController {
-    constructor(@inject(Types.UserService)private readonly userService:UserService){}
+    constructor(@inject(Types.UserService)private readonly service:UserService){}
 
     getUserWishlist = async(req:AuthRequest, res:Response)=>{
         const id = req.payload!.id;
-        const wishlists = await this.userService.getUserWishlist(id);
+        const wishlists = await this.service.getUserWishlist(id);
         return res.status(200).json({success:true, data:wishlists});
     }
 
     onBoardUser = async(req:AuthRequest, res:Response)=>{
         const id = req.payload!.id;
         const userData = req.body as AddProfileDto;
-        const profile = await this.userService.addProfile(userData, id);
+        const profile = await this.service.addProfile(userData, id);
         return res.status(200).json({success:true, data:profile})
     }
+
+    getProfile = async(req:AuthRequest, res:Response)=>{
+        const id = req.payload!.id;
+        const profile = await this.service.getProfile(id);
+        return res.status(200).json({success:true, data:profile})
+    }
+
     
 }

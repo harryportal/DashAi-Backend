@@ -19,7 +19,6 @@ model User {
   profile           Profile?
   googleSignOn      Boolean        @default(false)
   verified          Boolean        @default(false)
-  calendarStatus    Boolean        @default(false)
   verificationToken String?        @unique
   cart              Cart?
   sentGifts         Order[]        @relation("sentGifts")

@@ -7,13 +7,17 @@ import { UserwithProfile } from "./user.interface";
 export class UserRepository{
     constructor(@inject(PrismaClient)private readonly prisma:PrismaClient){}
     
-    async getUser(uniqueInput:Prisma.UserWhereUniqueInput, include?:Prisma.UserInclude)
-    :Promise<User | UserwithProfile | null>{
+    async getUser(where:Prisma.UserWhereUniqueInput){
         const user = await this.prisma.user.findUnique({
-            where: uniqueInput, include
-        });
+            where,
+            select: {id:true, firstName:true, lastName:true, email:true, verified:true, password:true, profile:true}
+        })
         return user;
     };
+
+    async getUserData(id:string){
+        return await this.prisma.user.findUnique({where: {id}})
+    }
 
     async updateUser(where: Prisma.UserWhereUniqueInput, data: Prisma.UserUpdateInput):Promise<User>{
          const user = await this.prisma.user.update({

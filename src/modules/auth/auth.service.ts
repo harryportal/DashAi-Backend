@@ -88,7 +88,7 @@ export class AuthService{
     public async verifyEmail(verificationToken:string):Promise<string>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
         const {email, id } = jwtPayload;
-        const user = await this.userRepository.getUser({id}) as User;
+        const user = await this.userRepository.getUserData(id) as User;
         const frontendUrl = process.env.FRONTENDURL
         if(!user || (user.verificationToken != verificationToken)){
             return `${frontendUrl}/verify`
@@ -107,14 +107,15 @@ export class AuthService{
      */
     public async signIn(email:string, _password:string):Promise<ISignInResponse>{
         email = email.toLowerCase();
-        const user = await this.userRepository.getUser({email}, {profile:true}) as UserwithProfile;
+        const user = await this.userRepository.getUser({email}) as UserwithProfile;
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
 
         const checkPassword = await comparePassword(_password, user.password!)
         if(!checkPassword) { throw new UnAuthorizedError("Invalid Login Credentials") }
-        const {refreshToken, accessToken} = await this.generateToken(user);
-        const {password, ...userwithoutPassword} = user;
-        return {accessToken, refreshToken, user:userwithoutPassword};
+        const {refreshToken, accessToken} = await this.generateToken(user as User);
+        const onboardingStatus = user.profile ? true: false; 
+        const {password, profile, ...userwithoutPassword} = user;
+        return {accessToken, refreshToken, user:userwithoutPassword,onboardingStatus};
     }
 
     /**
@@ -134,8 +135,9 @@ export class AuthService{
     }   
 
     public async googleSignOn(user:UserwithProfile):Promise<ISignInResponse>{
-        const  {accessToken, refreshToken} = await this.generateToken(user);
-        return {accessToken, refreshToken, user};
+        const  {accessToken, refreshToken} = await this.generateToken(user as User);
+        const onboardingStatus = user.profile ? true: false; 
+        return {accessToken, refreshToken, user, onboardingStatus};
     }
 
     /**
@@ -190,7 +192,7 @@ export class AuthService{
         const token = await this.authRepository.getRefreshToken(refreshToken);
         if (!token || token.expiresAt < new Date) { throw new UnAuthorizedError("Invalid Token Provided") }
         const email = verifiedPayload.email;
-        const user = await this.userRepository.getUser({email}) as User;
+        const user = await this.userRepository.getUser({email}) as unknown as User;
         const acessToken = createAcessToken(user);
         return acessToken;
     }
