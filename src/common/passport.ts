@@ -13,8 +13,8 @@ passport.use(
         {
             clientID:GOOGLE_CLIENTID,
             clientSecret: GOOGLE_CLIENTSECRET,
-            callbackURL: `https://dashai.netlify.app/google-sign/`
-        }, async(acessToken, refreshToken, profile, done)=>{
+            callbackURL: `${process.env.FRONTENDURL}/google-sign/`
+        }, async(_acessToken, _refreshToken, profile, done)=>{
                 const {email, email_verified, family_name, name} = profile._json;
                 // Throws an error if user gmail is not verified
                 if(email_verified == "false"){
@@ -28,7 +28,9 @@ passport.use(
                 - a way to extract and pass to the front end redirect url
                  */
                 let user = await prisma.user.findUnique({
-                    where: {email}
+                    where: {email}, 
+                    select: {id:true, firstName:true, lastName:true,
+                    email:true, verified:true, password:true, profile:true}
                 });
                 if(!user){
                     user = await prisma.user.create({
@@ -38,7 +40,9 @@ passport.use(
                             email:email!,
                             verified: true,
                             googleSignOn:true
-                        }
+                        }, 
+                        select: {id:true, firstName:true, lastName:true, email:true, 
+                        verified:true, password:true, profile:true}
                     })
                 }
                 return done(null, user);

@@ -20,5 +20,5 @@ router.get("/access-token", authController.getAccessToken)
 router.get("/verify-with-email", RequestValidator.validate(EmailVerifyDto), authController.getVerficiationMailwithEmail)
 router.get("/verification", protect(), authController.getVerficiationMail)
 router.get("/verify-email", authController.verifyEmail);
-router.get("/google", passport.authenticate("google", {scope: ["profile", "email"] }))
-router.get("/google/redirect", passport.authenticate("google"), authController.googleSignOn);
+router.get("/google/authenticate-user", passport.authenticate("google", {scope: ["profile", "email"] }))
+router.get("/google/sign-in", passport.authenticate("google"), authController.googleSignOn);

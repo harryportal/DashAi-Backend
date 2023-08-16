@@ -137,7 +137,8 @@ export class AuthService{
     public async googleSignOn(user:UserwithProfile):Promise<ISignInResponse>{
         const  {accessToken, refreshToken} = await this.generateToken(user as User);
         const onboardingStatus = user.profile ? true: false; 
-        return {accessToken, refreshToken, user, onboardingStatus};
+        const {profile, ...userWithouttProfile} = user; 
+        return {accessToken, refreshToken, user:userWithouttProfile, onboardingStatus};
     }
 
     /**
