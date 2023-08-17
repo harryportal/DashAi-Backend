@@ -64,7 +64,7 @@ export class AuthService{
      * @param email 
      * @param password 
      */
-    public async signUp(userInfo:SignUpDto):Promise<void>{
+    async signUp(userInfo:SignUpDto):Promise<void>{
         let {email, firstName, lastName, password } = userInfo;
         password = await hashPassword(password);
         try {
@@ -85,7 +85,7 @@ export class AuthService{
      * If valid, delete the verification token from the user and mark the user verified
      * @param verificationToken - jwt verification token
      */
-    public async verifyEmail(verificationToken:string):Promise<string>{
+    async verifyEmail(verificationToken:string):Promise<string>{
         const jwtPayload = this.verifyJwtandThrow(verificationToken);
         const {email, id } = jwtPayload;
         const user = await this.userRepository.getUserData(id) as User;
@@ -105,7 +105,7 @@ export class AuthService{
      * @param password 
      * @returns access and refresh tokens
      */
-    public async signIn(email:string, _password:string):Promise<ISignInResponse>{
+    async signIn(email:string, _password:string):Promise<ISignInResponse>{
         email = email.toLowerCase();
         const user = await this.userRepository.getUser({email}) as UserwithProfile;
         if(!user) { throw new UnAuthorizedError("Invalid Login Credentials") }
@@ -134,7 +134,7 @@ export class AuthService{
         return {refreshToken, accessToken};
     }   
 
-    public async googleSignOn(user:UserwithProfile):Promise<ISignInResponse>{
+    async googleSignOn(user:UserwithProfile):Promise<ISignInResponse>{
         const  {accessToken, refreshToken} = await this.generateToken(user as User);
         const onboardingStatus = user.profile ? true: false; 
         const {profile, ...userWithouttProfile} = user; 
@@ -148,7 +148,7 @@ export class AuthService{
      * verification email function.
      * @param email 
      */
-    public async getVerificationMail(email:string){
+    async getVerificationMail(email:string){
         const user = await this.userRepository.getUser({email});
         if(!user) {
             throw new BadRequestError("Email does not exist, Please sign up on dash to get started")
@@ -168,7 +168,7 @@ export class AuthService{
      * @param password 
      * @param confirmPassword 
      */
-    public async resetPassword(token:string, password:string, confirmPassword:string):Promise<void>{
+    async resetPassword(token:string, password:string, confirmPassword:string):Promise<void>{
         if (password !== confirmPassword){
             throw new BadRequestError("Passwords do not match!")
         }
@@ -188,7 +188,7 @@ export class AuthService{
      * @param refreshToken 
      * @returns a new access Token
      */
-    public async getAccessToken(refreshToken:string):Promise<string>{
+    async getAccessToken(refreshToken:string):Promise<string>{
         const verifiedPayload = this.verifyJwtandThrow(refreshToken);
         const token = await this.authRepository.getRefreshToken(refreshToken);
         if (!token || token.expiresAt < new Date) { throw new UnAuthorizedError("Invalid Token Provided") }
@@ -203,7 +203,7 @@ export class AuthService{
      * invalidates the refresh token by deleting it from the database
      * @param refreshToken 
      */
-    public async deleteRefreshToken(refreshToken:string){
+    async deleteRefreshToken(refreshToken:string){
         this.verifyJwtandThrow(refreshToken) as jwtPayload;
         const token = await this.authRepository.getRefreshToken(refreshToken); 
         if(token){
@@ -220,7 +220,7 @@ export class AuthService{
      * call the send reset mail method
      * @param email 
      */
-    public async forgotPassword(email:string){
+    async forgotPassword(email:string){
         email = email.toLowerCase();
         const user = await this.userRepository.getUser({email}) as UserwithProfile
         if(!user) { throw new BadRequestError("No User with Email Address!") }

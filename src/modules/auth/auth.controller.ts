@@ -9,61 +9,61 @@ import { AuthService } from "./auth.service";
 export class AuthController {
     constructor(@inject(Types.AuthService)private readonly authService:AuthService){}
 
-    public signUp = async(req:Request, res:Response)=>{
+    signUp = async(req:Request, res:Response)=>{
         const userInfo = req.body as SignUpDto;
         await this.authService.signUp(userInfo);
         return res.status(201).json({success:true, message:"A verification link has been sent to your email address!"})
     }
 
-    public signIn = async(req:Request, res:Response)=>{
+    signIn = async(req:Request, res:Response)=>{
         const {email, password} = req.body as SignInDto;
         const data = await this.authService.signIn(email, password);
         return res.json({success:true, data});
     }
 
-    public googleSignOn = async(req:Request, res:Response)=>{
+    googleSignOn = async(req:Request, res:Response)=>{
         const user = req.user as UserwithProfile;
         const response = await this.authService.googleSignOn(user);
         res.json({success:true, data:response}) // change implementation to redirect to frontend url
     }
 
-    public getVerficiationMail = async(req:AuthRequest, res:Response)=>{
+    getVerficiationMail = async(req:AuthRequest, res:Response)=>{
         const email = req.payload!.email;
         await this.authService.getVerificationMail(email);
         return res.json({success:true, message:"A verification link has been sent to your email address!"})
     }
     
-    public getVerficiationMailwithEmail = async(req:Request, res:Response)=>{
+    getVerficiationMailwithEmail = async(req:Request, res:Response)=>{
         const email = req.body.email;
         await this.authService.getVerificationMail(email);
         return res.json({success:true, message:"A verification link has been sent to your email address!"})
     }
 
-    public logout = async(req:Request, res:Response)=>{
+    logout = async(req:Request, res:Response)=>{
         const refreshToken = req.query.token as string;
         await this.authService.deleteRefreshToken(refreshToken);
         return res.json({success:true, message:"Logout Successful"})
     }
 
-    public forgotPassword = async(req:Request, res:Response)=>{
+    forgotPassword = async(req:Request, res:Response)=>{
         const {email} = req.body;
         await this.authService.forgotPassword(email);
         return res.json({success:true, message:"A password reset link has been sent to your mail"})
     }
 
-    public resetPassword = async(req:Request, res:Response)=>{
+    resetPassword = async(req:Request, res:Response)=>{
         const {token, password, confirmPassword} = req.body;
         await this.authService.resetPassword(token, password, confirmPassword);
         return res.json({success:true, message:"Your password has been successfully reset!"})
     }
 
-    public getAccessToken = async(req:Request, res:Response)=>{
+    getAccessToken = async(req:Request, res:Response)=>{
         const refreshToken = req.query.token as string;
         const accessToken = await this.authService.getAccessToken(refreshToken);
         return res.json({success:true, data: {accessToken}})
     }
 
-    public verifyEmail = async(req:Request, res:Response)=>{
+    verifyEmail = async(req:Request, res:Response)=>{
         const token = req.query.token as string;
         const redirectLink = await this.authService.verifyEmail(token)
         return res.redirect(redirectLink)
