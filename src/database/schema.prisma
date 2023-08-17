@@ -20,6 +20,7 @@ model User {
   googleSignOn      Boolean        @default(false)
   verified          Boolean        @default(false)
   verificationToken String?        @unique
+  favourites        Favourites[]
   cart              Cart?
   sentGifts         Order[]        @relation("sentGifts")
   recievedGift      Order[]        @relation("recievedGifts")
@@ -54,17 +55,27 @@ model Gift {
   name         String         @db.VarChar(255)
   description  String         @db.VarChar(255)
   price        Decimal
-  giftId       String // references the id of the gift from the external Api
-  imageUrl     String // references the image url of the gifts
+  giftId       String 
+  imageUrl     String
   tags         Tag[]
   cartGifts    CartGift[]
   wishlists    Wishlist[]
+  favourites   Favourites[]   @relation("user_favourites")
   curatedgifts CuratedGifts[]
+}
+
+model Favourites {
+  id     String @id @default(uuid())
+  userId String
+  giftId String
+  gift   Gift   @relation("user_favourites", fields: [giftId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 }
 
 model Order {
   id                  String  @id @default(uuid())
   senderId            String
+  shortId             String  @unique
   recieverId          String?
   recipientEmail      String
   personalisedMessage String? @db.Text()
@@ -90,7 +101,7 @@ model Cart {
   userId                String        @unique
   user                  User          @relation(fields: [userId], references: [id])
   paymentStatus         PaymentStatus @default(NOT_PAID)
-  stripePaymentIntentId String?       
+  stripePaymentIntentId String?
   gifts                 CartGift[]
   Order                 Order?
 }
