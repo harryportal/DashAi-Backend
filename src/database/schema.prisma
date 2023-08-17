@@ -20,7 +20,7 @@ model User {
   googleSignOn      Boolean        @default(false)
   verified          Boolean        @default(false)
   verificationToken String?        @unique
-  favourites        Favourites[]
+  favourites        Gift[]
   cart              Cart?
   sentGifts         Order[]        @relation("sentGifts")
   recievedGift      Order[]        @relation("recievedGifts")
@@ -60,16 +60,8 @@ model Gift {
   tags         Tag[]
   cartGifts    CartGift[]
   wishlists    Wishlist[]
-  favourites   Favourites[]   @relation("user_favourites")
+  favourites   User[]
   curatedgifts CuratedGifts[]
-}
-
-model Favourites {
-  id     String @id @default(uuid())
-  userId String
-  giftId String
-  gift   Gift   @relation("user_favourites", fields: [giftId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
 }
 
 model Order {

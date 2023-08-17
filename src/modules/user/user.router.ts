@@ -8,6 +8,8 @@ import { AddProfileDto } from "./user.dtos";
 const userController = container.resolve<UserController>(UserController)
 export const router = Router();
 
-router.get("/wishlists", protect(true), userController.getUserWishlist);
+router.get("/wishlists", protect(true), userController.getWishlist);
 router.post("/onboarding", protect(true), RequestValidator.validate(AddProfileDto), userController.onBoardUser)
 router.get("/profile", protect(true), userController.getProfile)
+router.post("/favourites/:giftId", protect(true), userController.addToFavourites) 
+router.get("/favourites", protect(true), userController.getFavourites )
