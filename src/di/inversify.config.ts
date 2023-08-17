@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import {Container} from "inversify";
 import {Types as AuthTypes } from "../modules/auth/auth.interface";
-import { IWishlistRepository, IWishlistService, Types as WishlistTypes } from "../modules/wishlist/wishlist.interface";
+import {Types as WishlistTypes } from "../modules/wishlist/wishlist.interface";
 import AuthRepository from "../modules/auth/auth.repository";
 import { AuthService } from "../modules/auth/auth.service";
 import { IEmailQueue, IMailService, MailTypes } from "../modules/mail/mail.interface";
@@ -37,8 +37,8 @@ container.bind<UserRepository>(UserTypes.UserRepository).to(UserRepository);
 container.bind<IEmailQueue>(MailTypes.IEmailQueue).to(EmailQueue);
 container.bind<IMailService>(MailTypes.IMailService).to(MailService);
 container.bind<UserService>(UserTypes.UserService).to(UserService)
-container.bind<IWishlistRepository>(WishlistTypes.IWishlistRepository).to(WishlistRepository);
-container.bind<IWishlistService>(WishlistTypes.IWishlistService).to(WishlistService);
+container.bind<WishlistRepository>(WishlistTypes.WishlistRepository).to(WishlistRepository);
+container.bind<WishlistService>(WishlistTypes.WishlistService).to(WishlistService);
 container.bind<GiftRepository>(GiftTypes.GiftRepository).to(GiftRepository);
 container.bind<GiftService>(GiftTypes.GiftService).to(GiftService);
 container.bind<IPaymentService>(PaymentTypes.IPaymentService).to(StripeService)

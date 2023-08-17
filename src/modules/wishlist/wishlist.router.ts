@@ -12,3 +12,4 @@ const wishlistController = container.resolve<WishlistController>(WishlistControl
 router.post("/", protect(true), RequestValidator.validate(AddWishlistDto), wishlistController.createWishlist)
 router.get("/:id", protect(true), wishlistController.getWishlist);
 router.get("/share/:id", wishlistController.getWishlistwithUser)
+router.post("/:wishlistId/gifts/:giftId", protect(true), wishlistController.addGiftToWishlist )

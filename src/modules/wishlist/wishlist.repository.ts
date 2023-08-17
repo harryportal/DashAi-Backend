@@ -1,9 +1,8 @@
 import { Prisma, PrismaClient, Wishlist } from "@prisma/client";
 import { inject, injectable } from "inversify";
-import { IWishlistRepository } from "./wishlist.interface";
 
 @injectable()
-export class WishlistRepository implements IWishlistRepository{
+export class WishlistRepository{
     constructor(@inject(PrismaClient)private readonly prisma:PrismaClient){}
 
     async getWishlist(where:Prisma.WishlistWhereUniqueInput, include?:Prisma.WishlistInclude):Promise<Wishlist | null>{
