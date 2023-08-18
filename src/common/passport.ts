@@ -13,7 +13,7 @@ passport.use(
         {
             clientID:GOOGLE_CLIENTID,
             clientSecret: GOOGLE_CLIENTSECRET,
-            callbackURL: `${process.env.FRONTENDURL}/google-sign/`
+            callbackURL: `${process.env.FRONTENDURL}/google-signin/`
         }, async(_acessToken, _refreshToken, profile, done)=>{
                 const {email, email_verified, family_name, name} = profile._json;
                 // Throws an error if user gmail is not verified
@@ -58,4 +58,4 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (user:User, done) => {
     const profile = await prisma.user.findUnique({where: {id:user.id }})
     done(null, profile!.id);
-  });
+});
